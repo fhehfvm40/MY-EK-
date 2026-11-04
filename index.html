@@ -17,7 +17,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230284c7'/%3E%3Cpath d='M20 68 Q50 48 80 68 Q50 82 20 68 Z' fill='%23fde047'/%3E%3Cpath d='M26 65 Q50 50 74 65 Q50 78 26 65 Z' fill='%2322c55e'/%3E%3Ctext x='50' y='46' font-size='32' text-anchor='middle' dominant-baseline='middle'%3E🏝️%3C/text%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230284c7'/%3E%3Cpath d='M15 72 Q50 50 85 72 Q50 88 15 72 Z' fill='%2322c55e'/%3E%3Ctext x='50' y='44' font-size='38' text-anchor='middle' dominant-baseline='middle'%3E🏝️%3C/text%3E%3C/svg%3E">
 
-    <!-- 인라인 Web App Manifest (단일 파일 독립 실행 지원) -->
+    <!-- 인라인 Web App Manifest -->
     <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%EC%B4%88%EB%A1%9D%20%EC%84%AC%EB%A7%88%EC%9D%84%20(Green%20Island)%22%2C%22short_name%22%3A%22%EC%B4%88%EB%A1%9D%EC%84%AC%EB%A7%88%EC%9D%84%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22any%22%2C%22background_color%22%3A%22%230284c7%22%2C%22theme_color%22%3A%22%230284c7%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%253E%253Crect%20width%3D'100'%20height%3D'100'%20rx%3D'22'%20fill%3D'%25230284c7'%2F%253E%253Ctext%20x%3D'50'%20y%3D'52'%20font-size%3D'44'%20text-anchor%3D'middle'%20dominant-baseline%3D'middle'%253E%F0%9F%8F%9D%EF%B8%8F%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%20512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,10 +42,10 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .glass-panel {
-            background: rgba(18, 24, 38, 0.82);
+            background: rgba(18, 24, 38, 0.84);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         .btn-press:active { transform: scale(0.95); }
     </style>
@@ -55,45 +55,61 @@
     <!-- 3D WebGL 캔버스 -->
     <canvas id="webgl-canvas"></canvas>
 
-    <!-- [야외] 상단 HUD 바 -->
-    <header id="outdoor-top-bar" class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-20">
-        <div class="flex items-center gap-2 pointer-events-auto">
-            <div class="glass-panel px-3.5 py-2 rounded-2xl flex items-center gap-2 shadow-xl">
-                <span class="text-xl">🏝️</span>
+    <!-- [야외] 상단 모바일 가로 스크롤 독 (Dock) -->
+    <header id="outdoor-top-bar" class="absolute top-3 left-0 right-0 flex justify-center px-2 pointer-events-none z-20">
+        <div class="glass-panel px-2.5 py-1.5 rounded-2xl flex items-center gap-2 overflow-x-auto no-scrollbar pointer-events-auto max-w-[96vw] shadow-2xl border border-white/20 touch-pan-x">
+            <!-- 1. 타이틀 & 상태 -->
+            <div class="flex items-center gap-2 px-1 flex-shrink-0">
+                <span class="text-lg">🏝️</span>
                 <div>
-                    <h1 class="text-xs sm:text-sm font-bold text-emerald-300 leading-tight">초록 섬마을</h1>
-                    <p class="text-[10px] text-slate-400" id="island-time-status">따스한 햇살 가득한 낮</p>
+                    <h1 class="text-xs sm:text-sm font-bold text-emerald-300 leading-tight whitespace-nowrap">초록 섬마을</h1>
+                    <p class="text-[9px] text-slate-400 whitespace-nowrap" id="island-time-status">따스한 햇살 가득한 낮</p>
                 </div>
             </div>
-            <!-- 목재 카운터 -->
-            <div id="wood-badge" class="glass-panel px-3 py-2 rounded-2xl flex items-center gap-1.5 shadow-xl text-xs font-semibold text-amber-200 transition-transform duration-200">
+
+            <!-- 2. 목재 카운터 -->
+            <div id="wood-badge" class="bg-slate-900/85 px-2.5 py-1 rounded-xl flex items-center gap-1 shadow text-xs font-semibold text-amber-200 flex-shrink-0 border border-white/10 transition-transform duration-200">
                 <span>🪵</span>
                 <span id="wood-count-text">0</span>
             </div>
-        </div>
 
-        <!-- 우측 액션 버튼들 -->
-        <div class="flex items-center gap-2 pointer-events-auto">
-            <!-- PWA 앱 설치 버튼 -->
-            <button id="btn-pwa-install" class="glass-panel px-3 py-2 rounded-xl text-xs font-semibold hover:bg-slate-800/80 text-emerald-300 transition btn-press hidden items-center gap-1.5 shadow-lg border border-emerald-500/30">
+            <!-- 구분선 -->
+            <div class="w-px h-5 bg-white/10 flex-shrink-0"></div>
+
+            <!-- 3. 데이터 저장/관리 버튼 -->
+            <button id="btn-open-save-mgr-outdoor" class="flex-shrink-0 bg-slate-900/90 hover:bg-slate-800 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs font-bold btn-press flex items-center gap-1 border border-amber-400/30 shadow-sm whitespace-nowrap">
+                <span>💾</span>
+                <span>저장/관리</span>
+            </button>
+
+            <!-- 4. PWA 앱 설치 버튼 -->
+            <button id="btn-pwa-install" class="flex-shrink-0 bg-slate-900/80 hover:bg-slate-800 text-emerald-300 px-2.5 py-1.5 rounded-xl text-xs font-semibold btn-press hidden items-center gap-1 border border-emerald-500/30 shadow-sm whitespace-nowrap">
                 <span>📲</span>
-                <span class="hidden sm:inline">앱 설치</span>
+                <span>앱 설치</span>
             </button>
-            <button id="btn-day-night" class="glass-panel px-3 py-2 rounded-xl text-xs font-semibold hover:bg-slate-800/80 text-amber-300 transition btn-press flex items-center gap-1.5 shadow-lg border border-amber-500/20">
+
+            <!-- 5. 낮/밤 전환 -->
+            <button id="btn-day-night" class="flex-shrink-0 bg-slate-900/80 hover:bg-slate-800 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs font-semibold btn-press flex items-center gap-1 border border-amber-500/20 shadow-sm whitespace-nowrap">
                 <span id="day-night-icon">🌙</span>
-                <span id="day-night-text" class="hidden sm:inline">밤으로</span>
+                <span id="day-night-text">밤으로</span>
             </button>
-            <button id="btn-top-view" class="glass-panel px-3 py-2 rounded-xl text-xs font-medium hover:bg-slate-800/80 transition btn-press flex items-center gap-1.5 shadow-lg border border-white/10">
+
+            <!-- 6. 하늘에서 보기 -->
+            <button id="btn-top-view" class="flex-shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-200 px-2.5 py-1.5 rounded-xl text-xs font-medium btn-press flex items-center gap-1 border border-white/10 shadow-sm whitespace-nowrap">
                 <span>🛰️</span>
-                <span class="hidden sm:inline">하늘에서 보기</span>
+                <span>하늘뷰</span>
             </button>
-            <button id="btn-walk-mode" class="glass-panel px-3 py-2 rounded-xl text-xs font-medium hover:bg-emerald-900/60 text-emerald-300 transition btn-press flex items-center gap-1.5 shadow-lg border border-emerald-500/30">
+
+            <!-- 7. 섬 걷기 -->
+            <button id="btn-walk-mode" class="flex-shrink-0 bg-slate-900/80 hover:bg-emerald-900/60 text-emerald-300 px-2.5 py-1.5 rounded-xl text-xs font-medium btn-press flex items-center gap-1 border border-emerald-500/30 shadow-sm whitespace-nowrap">
                 <span>🚶</span>
-                <span class="hidden sm:inline" id="walk-btn-text">섬 걷기 (WASD)</span>
+                <span id="walk-btn-text">섬 걷기</span>
             </button>
-            <button id="btn-add-building" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/40 btn-press flex items-center gap-1">
+
+            <!-- 8. 새 집 짓기 -->
+            <button id="btn-add-building" class="flex-shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-md btn-press flex items-center gap-1 whitespace-nowrap">
                 <span>➕</span>
-                <span class="hidden sm:inline">새 집 짓기</span>
+                <span>새 집 짓기</span>
             </button>
         </div>
     </header>
@@ -112,10 +128,16 @@
                 <span>나가기</span>
             </button>
 
+            <!-- 2. 저장/관리 버튼 -->
+            <button id="btn-open-save-mgr-indoor" class="flex-shrink-0 bg-slate-900/90 hover:bg-slate-800 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs font-bold btn-press flex items-center gap-1 border border-amber-400/30 shadow-sm">
+                <span>💾</span>
+                <span>저장</span>
+            </button>
+
             <!-- 구분선 -->
             <div class="w-px h-5 bg-white/10 flex-shrink-0"></div>
 
-            <!-- 2. 룸 내비게이터 (이전, 셀렉터, 다음, 이름변경, 삭제) -->
+            <!-- 3. 룸 내비게이터 -->
             <div class="flex-shrink-0 bg-slate-950/70 px-2 py-1 rounded-xl flex items-center gap-1.5 text-xs border border-white/10">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
                 <button id="btn-prev-room" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs flex items-center justify-center font-bold btn-press flex-shrink-0" title="이전 방">◀</button>
@@ -129,7 +151,7 @@
             <!-- 구분선 -->
             <div class="w-px h-5 bg-white/10 flex-shrink-0"></div>
 
-            <!-- 4. 전체 방 조감도 토글 -->
+            <!-- 4. 전체 방 조감도 토글 (360도 3D 회전 지원) -->
             <button id="btn-room-all-view" class="flex-shrink-0 bg-slate-900/80 hover:bg-slate-800 text-teal-300 px-3 py-1.5 rounded-xl text-xs font-semibold btn-press flex items-center gap-1.5 border border-teal-500/30 shadow-sm">
                 <span>🏘️</span>
                 <span id="room-all-text">전체 방 보기</span>
@@ -161,7 +183,61 @@
         </header>
     </div>
 
-    <!-- [실내] 가구 배치 대기 안내 배너 (Ghost Placement Mode) -->
+    <!-- [데이터 저장 & 백업 관리 모달] -->
+    <div id="modal-save-manager" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this) closeModal('modal-save-manager')">
+        <div class="glass-panel w-full max-w-sm rounded-2xl p-5 border border-white/20 shadow-2xl space-y-4 text-xs">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2.5">
+                <h3 class="font-bold text-sm text-amber-300 flex items-center gap-1.5">
+                    <span>💾</span> 마을 데이터 저장 및 백업 관리
+                </h3>
+                <button onclick="closeModal('modal-save-manager')" class="text-slate-400 hover:text-white text-lg">&times;</button>
+            </div>
+            
+            <div class="space-y-2.5 text-slate-300">
+                <!-- 1. 브라우저 즉시 저장 -->
+                <div class="p-3 bg-slate-900/80 rounded-xl border border-white/10 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="font-bold text-white flex items-center gap-1">⚡ 브라우저 즉시 저장</p>
+                        <p class="text-[10px] text-slate-400">현재 창에 변경사항 영구 기록</p>
+                    </div>
+                    <button id="btn-action-quick-save" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs btn-press flex items-center gap-1">
+                        <span>저장</span>
+                    </button>
+                </div>
+
+                <!-- 2. JSON 파일 백업 다운로드 -->
+                <div class="p-3 bg-slate-900/80 rounded-xl border border-white/10 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="font-bold text-white flex items-center gap-1">📥 파일로 백업 (JSON)</p>
+                        <p class="text-[10px] text-slate-400">스마트폰/PC 파일로 영구 보관</p>
+                    </div>
+                    <button id="btn-action-export-json" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs btn-press flex items-center gap-1">
+                        <span>다운로드</span>
+                    </button>
+                </div>
+
+                <!-- 3. 백업 파일 불러오기 -->
+                <div class="p-3 bg-slate-900/80 rounded-xl border border-white/10 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="font-bold text-white flex items-center gap-1">📤 백업 파일 복원</p>
+                        <p class="text-[10px] text-slate-400">저장된 JSON 파일로 마을 복구</p>
+                    </div>
+                    <input type="file" id="input-restore-json-file" accept=".json" class="hidden">
+                    <button id="btn-action-import-json" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs btn-press flex items-center gap-1">
+                        <span>불러오기</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="save-status-msg" class="hidden text-center text-[11px] font-bold py-1 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-500/30"></div>
+
+            <div class="flex justify-end pt-2 border-t border-white/10">
+                <button onclick="closeModal('modal-save-manager')" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- [실내] 가구 배치 대기 안내 배너 -->
     <div id="furniture-placement-banner" class="absolute top-16 left-1/2 -translate-x-1/2 hidden glass-panel px-4 py-2 rounded-2xl shadow-2xl items-center gap-3 border border-amber-400/50 bg-amber-950/85 z-30 pointer-events-auto">
         <span class="text-base animate-bounce">📍</span>
         <div class="text-xs">
@@ -171,7 +247,7 @@
         <button id="btn-cancel-placement" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold border border-white/10 btn-press ml-1">취소</button>
     </div>
 
-    <!-- [야외] 건물 근접 시 나타나는 입장 액션 버튼 -->
+    <!-- [야외] 건물 근접 입장 액션 버튼 -->
     <div id="building-proximity-prompt" class="absolute bottom-24 left-1/2 -translate-x-1/2 hidden pointer-events-auto z-30 transition-all duration-300">
         <button id="btn-enter-proximity" class="glass-panel px-5 py-3 rounded-2xl flex items-center gap-2.5 shadow-2xl border-2 border-emerald-400 bg-emerald-950/85 text-white font-bold text-sm hover:scale-105 active:scale-95 transition-transform animate-pulse">
             <span class="text-xl">🚪</span>
@@ -180,9 +256,9 @@
         </button>
     </div>
 
-    <!-- [실내] 선택된 가구 전용 하단 액션 HUD 바 (슬림 & 콤팩트 최적화) -->
+    <!-- [실내] 선택된 가구 전용 슬림 HUD 바 -->
     <div id="furniture-action-hud" class="absolute bottom-4 left-1/2 -translate-x-1/2 hidden glass-panel px-3 py-2 rounded-2xl shadow-2xl flex-col items-center gap-1.5 border border-white/20 z-30 w-[92vw] max-w-sm sm:max-w-md">
-        <!-- 1행: 가구 이름 & 편집 & 회전/삭제 -->
+        <!-- 1행: 이름 & 회전/삭제 -->
         <div class="flex items-center justify-between w-full text-xs font-bold gap-2 border-b border-white/10 pb-1">
             <div class="flex items-center gap-1 text-emerald-300 min-w-0">
                 <span class="flex-shrink-0">✨</span>
@@ -199,31 +275,28 @@
             </div>
         </div>
 
-        <!-- 2행: 미세 이동 D-pad & 높이 조절 & 색상 팔레트 -->
+        <!-- 2행: 미세 이동 D-pad & 높이 & 컬러 -->
         <div class="flex items-center justify-between w-full gap-1.5 text-[11px]">
-            <!-- 미세 이동 -->
             <div class="flex items-center gap-0.5 bg-slate-900/85 px-1 py-0.5 rounded-lg border border-white/10">
                 <span class="text-[9px] text-slate-400 font-semibold px-0.5">이동</span>
-                <button id="hud-btn-move-left" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[10px] flex items-center justify-center font-bold btn-press" title="좌측 이동">◀</button>
-                <button id="hud-btn-move-forward" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[10px] flex items-center justify-center font-bold btn-press" title="안쪽 이동">▲</button>
-                <button id="hud-btn-move-back" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[10px] flex items-center justify-center font-bold btn-press" title="앞쪽 이동">▼</button>
-                <button id="hud-btn-move-right" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[10px] flex items-center justify-center font-bold btn-press" title="우측 이동">▶</button>
+                <button id="hud-btn-move-left" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[10px] flex items-center justify-center font-bold btn-press">◀</button>
+                <button id="hud-btn-move-forward" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[10px] flex items-center justify-center font-bold btn-press">▲</button>
+                <button id="hud-btn-move-back" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[10px] flex items-center justify-center font-bold btn-press">▼</button>
+                <button id="hud-btn-move-right" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[10px] flex items-center justify-center font-bold btn-press">▶</button>
             </div>
 
-            <!-- 높이 조절 -->
             <div class="flex items-center gap-0.5 bg-slate-900/85 px-1 py-0.5 rounded-lg border border-white/10">
                 <span class="text-[9px] text-slate-400 font-semibold px-0.5">높이</span>
-                <button id="hud-btn-height-up" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] flex items-center justify-center font-bold btn-press" title="올리기">⬆️</button>
-                <button id="hud-btn-height-down" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-amber-400 text-[10px] flex items-center justify-center font-bold btn-press" title="내리기">⬇️</button>
+                <button id="hud-btn-height-up" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] flex items-center justify-center font-bold btn-press">⬆️</button>
+                <button id="hud-btn-height-down" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-amber-400 text-[10px] flex items-center justify-center font-bold btn-press">⬇️</button>
             </div>
 
-            <!-- 색상 팔레트 -->
             <div class="flex items-center gap-1 bg-slate-900/85 px-1.5 py-1 rounded-lg border border-white/10">
                 <div id="hud-color-palette" class="flex items-center gap-1"></div>
             </div>
         </div>
 
-        <!-- 특수 가구 전용 버튼들 (책장 및 체크리스트) -->
+        <!-- 특수 가구 전용 버튼 -->
         <div id="hud-bookshelf-controls" class="hidden items-center gap-1 w-full pt-0.5">
             <button id="hud-btn-open-bookshelf" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white text-[11px] py-1 px-2 rounded-lg font-bold btn-press flex items-center justify-center gap-1">
                 <span>📖</span> 책 넣기 / 꺼내기 (도서 관리)
@@ -307,7 +380,7 @@
         </div>
     </div>
 
-    <!-- 모달: 현장 알림 메모장 작성 및 보기 -->
+    <!-- 모달: 현장 알림 메모장 -->
     <div id="modal-memo-view" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this) closeModal('modal-memo-view')">
         <div class="glass-panel w-full max-w-md rounded-2xl p-5 border border-white/20 shadow-2xl flex flex-col space-y-3.5 max-h-[88vh] overflow-hidden">
             <div class="flex justify-between items-center border-b border-white/10 pb-2.5">
@@ -323,17 +396,14 @@
                 </div>
                 <button onclick="closeModal('modal-memo-view')" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
             </div>
-
-            <!-- 메모 작성 영역 -->
             <div class="space-y-2 flex-1 flex flex-col">
                 <label class="block text-slate-300 text-[11px] font-semibold">메모 내용 (3D 게시판에 실시간 인쇄)</label>
-                <textarea id="textarea-memo-content" rows="6" placeholder="현장 작업 주의사항, 담당자 연락처, 자재 주문 메모 등을 자유롭게 적어보세요..." class="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-400 placeholder:text-slate-500 resize-none flex-1 leading-relaxed"></textarea>
+                <textarea id="textarea-memo-content" rows="6" placeholder="현장 작업 주의사항, 담당자 연락처, 자재 주문 메모 등을 적어보세요..." class="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-400 placeholder:text-slate-500 resize-none flex-1 leading-relaxed"></textarea>
                 <div class="flex justify-between items-center text-[10px] text-slate-400 px-0.5">
                     <span id="memo-status-info">자동 줄바꿈 및 3D 메모지 인쇄 지원</span>
                     <span id="memo-char-count">0자</span>
                 </div>
             </div>
-
             <div class="pt-2 border-t border-white/10 flex justify-end gap-2">
                 <button onclick="closeModal('modal-memo-view')" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium">닫기</button>
                 <button id="btn-save-memo" class="px-4 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold btn-press flex items-center gap-1 shadow-md">
@@ -344,7 +414,7 @@
         </div>
     </div>
 
-    <!-- 모달: 현장 작업 체크리스트 관리 -->
+    <!-- 모달: 체크리스트 -->
     <div id="modal-checklist-view" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this) closeModal('modal-checklist-view')">
         <div class="glass-panel w-full max-w-md rounded-2xl p-5 border border-white/20 shadow-2xl flex flex-col space-y-3.5 max-h-[88vh] overflow-hidden">
             <div class="flex justify-between items-center border-b border-white/10 pb-2.5">
@@ -360,8 +430,6 @@
                 </div>
                 <button onclick="closeModal('modal-checklist-view')" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
             </div>
-
-            <!-- 진행률 프로그레스 바 -->
             <div class="bg-slate-900/80 p-3 rounded-xl border border-white/10 space-y-1.5">
                 <div class="flex justify-between items-center text-xs font-semibold">
                     <span class="text-slate-300">점검 진행률</span>
@@ -371,8 +439,6 @@
                     <div id="chk-progress-bar" class="bg-gradient-to-r from-sky-500 to-emerald-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
             </div>
-
-            <!-- 새 항목 추가 폼 -->
             <div class="flex gap-2">
                 <input id="input-new-checklist-task" type="text" placeholder="새 점검 / 작업 항목 입력..." class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-sky-400 placeholder:text-slate-500">
                 <button id="btn-add-checklist-task" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-3.5 py-2 rounded-lg text-xs btn-press flex items-center gap-1 shadow-md flex-shrink-0">
@@ -380,17 +446,14 @@
                     <span>추가</span>
                 </button>
             </div>
-
-            <!-- 체크리스트 목록 -->
             <div id="checklist-items-container" class="space-y-1.5 overflow-y-auto no-scrollbar max-h-56 pr-0.5 flex-1 text-xs"></div>
-
             <div class="pt-2 border-t border-white/10 flex justify-end">
                 <button onclick="closeModal('modal-checklist-view')" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium">완료</button>
             </div>
         </div>
     </div>
 
-    <!-- 모달: 원목 책장 관리 및 도서명 등록 -->
+    <!-- 모달: 원목 책장 관리 -->
     <div id="modal-bookshelf-manager" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-md rounded-2xl p-5 border border-white/20 shadow-2xl flex flex-col max-h-[85vh] space-y-3">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -407,7 +470,7 @@
             </div>
             <div class="text-[11px] text-slate-400 flex items-center justify-between">
                 <span>책장에 꽂혀 있는 책 (<span id="books-count-num" class="text-amber-300 font-bold">0</span>권):</span>
-                <span class="text-[10px] text-slate-500">꺼내기 누르면 책장에서 즉시 제거</span>
+                <span class="text-[10px] text-slate-500">꺼내기 누르면 즉시 제거</span>
             </div>
             <div id="bookshelf-list" class="space-y-1.5 overflow-y-auto no-scrollbar max-h-56 pr-1 flex-1 text-xs"></div>
             <div class="pt-2 border-t border-white/10 flex justify-end">
@@ -457,7 +520,7 @@
                 <div class="flex items-center justify-between text-emerald-300 font-bold">
                     <span id="cal-memo-date-text">11월 4일 (수)</span>
                     <div class="flex items-center gap-1.5">
-                        <button id="btn-export-excel" type="button" class="bg-emerald-700/80 hover:bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg btn-press flex items-center gap-1 shadow-sm border border-emerald-400/40" title="업체별 작업 내역 엑셀 파일 다운로드">
+                        <button id="btn-export-excel" type="button" class="bg-emerald-700/80 hover:bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg btn-press flex items-center gap-1 shadow-sm border border-emerald-400/40">
                             <span>📊</span>
                             <span>엑셀 다운로드</span>
                         </button>
@@ -465,22 +528,18 @@
                     </div>
                 </div>
 
-                <!-- 업체별 모아보기 필터 탭 바 -->
                 <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="cal-company-filter-bar">
                     <span class="text-[10px] text-slate-400 flex-shrink-0">업체 필터:</span>
                     <div id="cal-company-chips" class="flex items-center gap-1.5 flex-nowrap"></div>
                 </div>
 
-                <!-- 등록된 작업 일정 리스트 -->
                 <div id="cal-schedule-list" class="space-y-2 overflow-y-auto no-scrollbar pr-0.5 max-h-36 flex-1"></div>
 
-                <!-- 새 일정 추가 입력 바 (업체명, 작업명, 사진첨부) -->
                 <div class="pt-2 border-t border-white/10 space-y-2">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <input id="input-sched-company" type="text" placeholder="업체명 (예: 한빛인테리어)" class="bg-slate-950/90 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white text-xs outline-none focus:border-emerald-400 placeholder:text-slate-500">
                         <input id="input-sched-task" type="text" placeholder="작업명 (예: 배관 보수 및 방수)" class="bg-slate-950/90 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white text-xs outline-none focus:border-emerald-400 placeholder:text-slate-500">
                     </div>
-
                     <div class="flex flex-col gap-1.5">
                         <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-2">
@@ -491,14 +550,11 @@
                                 </button>
                                 <span id="photo-count-badge" class="hidden text-[10px] text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-500/30">0장 첨부됨</span>
                             </div>
-
                             <button id="btn-add-schedule" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs btn-press flex items-center gap-1 shadow-md flex-shrink-0">
                                 <span>➕</span>
                                 <span>작업 등록</span>
                             </button>
                         </div>
-
-                        <!-- 첨부 사진 썸네일 리스트 (가로 스크롤 미리보기) -->
                         <div id="sched-photos-preview-list" class="hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1"></div>
                     </div>
                 </div>
@@ -510,7 +566,7 @@
         </div>
     </div>
 
-    <!-- 모달: 첨부 사진 원본 확대 보기 -->
+    <!-- 모달: 첨부 사진 확대 보기 -->
     <div id="modal-photo-viewer" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4" onclick="closeModal('modal-photo-viewer')">
         <div class="relative max-w-xl max-h-[85vh] flex flex-col items-center" onclick="event.stopPropagation()">
             <img id="modal-photo-img" src="" alt="확대 사진" class="rounded-xl max-w-full max-h-[75vh] object-contain shadow-2xl border border-white/20">
@@ -538,7 +594,7 @@
         </div>
     </div>
 
-    <!-- 모달: PWA 홈 화면 설치 안내 (iOS 및 안내용) -->
+    <!-- 모달: PWA 홈 화면 설치 안내 -->
     <div id="modal-pwa-guide" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this) closeModal('modal-pwa-guide')">
         <div class="glass-panel w-full max-w-sm rounded-2xl p-5 border border-emerald-400/30 shadow-2xl space-y-3.5 text-xs text-slate-200">
             <div class="flex justify-between items-center border-b border-white/10 pb-2.5">
@@ -563,7 +619,7 @@
         </div>
     </div>
 
-    <!-- 모달: 건물(집) 철거 확인 -->
+    <!-- 모달: 건물 철거 확인 -->
     <div id="modal-demolish-building" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this) closeModal('modal-demolish-building')">
         <div class="glass-panel w-full max-w-sm rounded-2xl p-5 border border-rose-500/40 shadow-2xl space-y-3.5 text-xs">
             <div class="flex justify-between items-center border-b border-white/10 pb-2.5">
@@ -600,7 +656,6 @@
                 <label class="block text-slate-300 mb-1.5 font-semibold">방 명칭</label>
                 <input id="input-room-name" type="text" placeholder="예: 메인 관제실, 도면 검토실 등" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-emerald-400 text-xs">
             </div>
-            <!-- 추천 방 이름 칩 -->
             <div>
                 <span class="text-[10px] text-slate-400 block mb-1">빠른 추천 명칭:</span>
                 <div class="flex flex-wrap gap-1" id="room-preset-chips">
@@ -617,7 +672,7 @@
         </div>
     </div>
 
-    <!-- [야외] 건물 이름 및 편집 플로팅 오버레이 컨테이너 -->
+    <!-- [야외] 건물 이름 플로팅 오버레이 -->
     <div id="building-labels-container" class="absolute inset-0 pointer-events-none z-10 overflow-hidden"></div>
 
     <!-- 자바스크립트 엔진 -->
@@ -626,28 +681,22 @@
         let scene, camera, renderer, raycaster, mouse;
         let outdoorGroup, indoorGroup;
         let islandTerrainMesh, oceanMesh;
-        let roadsGroup = null; // 자동 도로망 전용 3D 그룹
-        let roadLanternMaterials = []; // 밤/낮 전환 시 발광 제어용 도로등 재질 목록
-        let cloudsGroup = null; // 상공 3D 몽실구름 그룹
-        let cloudMaterials = []; // 낮/밤 전환 시 색상 제어용 구름 재질 목록
+        let roadsGroup = null;
+        let roadLanternMaterials = [];
+        let cloudsGroup = null;
+        let cloudMaterials = [];
         let hemiLight, sunLight;
         let isNight = false;
         let isInsideRoom = false;
-        let isRoomIsoView = false;
-        let isAllRoomsMode = false; // 모든 방 동시 렌더링 조감도 모드
-        let roomCamMode = 'follow'; // 'follow' (캐릭터 시점), 'orbit' (3D 360도 둘러보기), 'iso' (조감도)
+        let isAllRoomsMode = false;
+        let roomCamMode = 'follow'; // 'follow', 'orbit', 'iso'
         let roomOrbitAngles = { theta: 0, phi: 1.15, radius: 18 };
         let isRoomOrbiting = false;
         let currentBuilding = null;
         let currentRoomIndex = 0;
-
-        // 시점 모드: 'free' (자유 궤도), 'top' (하늘에서 보기), 'walk' (섬 걷기)
-        let outdoorCameraMode = 'free';
-
-        // 목재 인벤토리
+        let outdoorCameraMode = 'free'; // 'free', 'top', 'walk'
         let woodCount = 0;
 
-        // 건축물 데이터 목록 (초기: E K 연구소 1채 단독 - 가구가 없는 완전한 빈 방으로 시작)
         let buildings = [
             {
                 id: 'lab-center',
@@ -659,27 +708,24 @@
                 rooms: [
                     {
                         name: '메인 관제실',
-                        furnitures: [] // 기본 가구 없이 빈 방으로 초기화
+                        furnitures: []
                     }
                 ]
             }
         ];
 
-        // 3D 메시 참조 맵
         const buildingMeshes = new Map();
         const treeObjects = [];
         const npcObjects = [];
         let playerAvatarObj = null;
         let renamingBuildingId = null;
         let nearbyBuilding = null;
-        let isAddingNewRoomModal = false; // 새 방 추가 모드 여부
+        let isAddingNewRoomModal = false;
 
-        // 플레이어 캐릭터 상태
         let playerYaw = 0;
         const moveKeys = { w: false, a: false, s: false, d: false };
         const joyVec = { x: 0, y: 0 };
 
-        // 가구 카탈로그 정의
         const FURNITURE_CATALOG = [
             { type: 'bookshelf', name: '클래식 원목 책장', icon: '📖', color: '#b45309' },
             { type: 'checklist_board', name: '작업 체크리스트 보드', icon: '📋', color: '#0284c7' },
@@ -694,44 +740,140 @@
             { type: 'calendar_board', name: '3D 벽걸이 달력', icon: '📅', color: '#059669' }
         ];
 
-        // 8색 가구 팔레트
         const PALETTE_COLORS = ['#b45309', '#78350f', '#0d9488', '#0284c7', '#4b5563', '#dc2626', '#16a34a', '#f8fafc'];
 
-        // 선택된 가구
         let selectedFurniture = null;
         let selectedFurnitureMesh = null;
-
-        // 신규 가구 자유 배치 모드 (Ghost Placement Mode)
         let isPlacingNewFurniture = false;
         let pendingFurnitureData = null;
         let ghostPreviewMesh = null;
 
-        // 드래그 상태 (야외 건물)
         let isDraggingBuilding = false;
         let draggedBuildingObj = null;
         let dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
         let dragIntersection = new THREE.Vector3();
 
-        // 실내 가구 드래그 상태
         let isDraggingFurniture = false;
         let draggedFurnitureObj = null;
         const furnitureDragOffset = new THREE.Vector3();
 
-        // 궤도 카메라 제어 변수
         let isOrbiting = false;
         let prevMousePos = { x: 0, y: 0 };
         let orbitAngles = { theta: 0.8, phi: 1.0, radius: 45 };
 
-        // 건물 더블 클릭(더블 탭) 감지 변수
         let lastBuildingClickTime = 0;
         let lastClickedBuildingId = null;
-
-        // 하늘에서부터 줌인되는 오프닝 인트로 상태 변수
         let isIntroAnimating = true;
         let introStartTime = 0;
-        const INTRO_DURATION = 2.4; // 2.4초 동안 부드럽게 하강 줌인
+        const INTRO_DURATION = 2.4;
 
-        /* ======================== 오디오 합성 ======================== */
+        /* ======================== 브라우저 로컬 저장 & JSON 백업/복원 ======================== */
+        const STORAGE_KEY = 'green_island_village_data_v2';
+
+        function saveVillageDataToStorage(showFeedback = true) {
+            try {
+                const data = {
+                    buildings,
+                    islandSchedules,
+                    woodCount,
+                    isNight,
+                    savedAt: new Date().toISOString()
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                if (showFeedback) showSaveToast('✅ 마을 데이터가 브라우저에 안전하게 저장되었습니다!');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function loadVillageDataFromStorage() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return false;
+                const parsed = JSON.parse(raw);
+                if (parsed.buildings && Array.isArray(parsed.buildings)) {
+                    buildings = parsed.buildings;
+                    if (parsed.islandSchedules) Object.assign(islandSchedules, parsed.islandSchedules);
+                    if (parsed.woodCount !== undefined) woodCount = parsed.woodCount;
+                    const woodEl = document.getElementById('wood-count-text');
+                    if (woodEl) woodEl.innerText = woodCount;
+                    return true;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            return false;
+        }
+
+        function exportVillageDataToFile() {
+            saveVillageDataToStorage(false);
+            const data = {
+                version: '2.0',
+                appName: '초록 섬마을',
+                exportDate: new Date().toISOString(),
+                buildings,
+                islandSchedules,
+                woodCount,
+                isNight
+            };
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const dStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            a.href = url;
+            a.download = `green_island_backup_${dStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showSaveToast('📥 백업 파일(JSON) 다운로드가 완료되었습니다!');
+        }
+
+        function importVillageDataFromFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.buildings && Array.isArray(parsed.buildings)) {
+                        buildings = parsed.buildings;
+                        if (parsed.islandSchedules) {
+                            for (const k in islandSchedules) delete islandSchedules[k];
+                            Object.assign(islandSchedules, parsed.islandSchedules);
+                        }
+                        if (parsed.woodCount !== undefined) woodCount = parsed.woodCount;
+                        const woodEl = document.getElementById('wood-count-text');
+                        if (woodEl) woodEl.innerText = woodCount;
+
+                        saveVillageDataToStorage(false);
+
+                        if (isInsideRoom) {
+                            rebuildIndoorRoom();
+                            updateRoomSelectorUI();
+                        } else {
+                            buildAllBuildings();
+                        }
+                        showSaveToast('🎉 백업 파일로부터 마을이 성공적으로 복구되었습니다!');
+                        closeModal('modal-save-manager');
+                    }
+                } catch (err) {
+                    alert('유효하지 않은 백업 파일입니다.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function showSaveToast(msg) {
+            const el = document.getElementById('save-status-msg');
+            if (el) {
+                el.innerText = msg;
+                el.classList.remove('hidden');
+                setTimeout(() => el.classList.add('hidden'), 2600);
+            }
+        }
+
+        /* ======================== 오디오 ======================== */
         let audioCtx = null;
         function playChopSound() {
             try {
@@ -753,13 +895,14 @@
 
         /* ======================== 3D 씬 초기화 ======================== */
         function initScene() {
+            loadVillageDataFromStorage();
+
             const canvas = document.getElementById('webgl-canvas');
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xa7f3d0);
             scene.fog = new THREE.FogExp2(0xa7f3d0, 0.008);
 
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 500);
-            // 시작 시 높은 하늘 상공 구도에서 대기
             camera.position.set(15, 125, 95);
             camera.lookAt(0, 0, 0);
 
@@ -774,7 +917,6 @@
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
 
-            // 조명
             hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e3a8a, 0.7);
             scene.add(hemiLight);
 
@@ -792,39 +934,35 @@
             sunLight.shadow.camera.bottom = -d;
             scene.add(sunLight);
 
-            // 씬 그룹 분리
             outdoorGroup = new THREE.Group();
             indoorGroup = new THREE.Group();
             indoorGroup.visible = false;
             scene.add(outdoorGroup);
             scene.add(indoorGroup);
 
-            // 도로망 그룹 야외 씬에 등록
             roadsGroup = new THREE.Group();
             outdoorGroup.add(roadsGroup);
 
-            // 상공 3D 몽실구름 그룹 등록 및 생성
             cloudsGroup = new THREE.Group();
             outdoorGroup.add(cloudsGroup);
             generateClouds();
 
-            // 야외 요소 생성
             buildIslandLandscape();
             buildOcean();
             buildAllBuildings();
             generateTrees();
             createClayCharacters();
 
-            // 이벤트 바인딩
             setupPointerInteractions();
             setupJoystickAndKeys();
             setupCatalogUI();
             setupHUDControls();
+            setupSaveManagerUI();
 
             window.addEventListener('resize', onWindowResize);
         }
 
-        /* ======================== 사실적 섬 & 바다 ======================== */
+        /* ======================== 섬 & 바다 ======================== */
         function buildIslandLandscape() {
             const islandGeo = new THREE.CylinderGeometry(42, 48, 8, 48);
             const islandMat = new THREE.MeshStandardMaterial({
@@ -837,7 +975,6 @@
             islandTerrainMesh.receiveShadow = true;
             outdoorGroup.add(islandTerrainMesh);
 
-            // 모래사장
             const sandGeo = new THREE.TorusGeometry(43.5, 3.2, 16, 64);
             const sandMat = new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.9 });
             const sand = new THREE.Mesh(sandGeo, sandMat);
@@ -861,7 +998,7 @@
             outdoorGroup.add(oceanMesh);
         }
 
-        /* ======================== 상공 3D 몽실구름 시스템 ======================== */
+        /* ======================== 3D 몽실구름 ======================== */
         function generateClouds() {
             if (!cloudsGroup) return;
             while (cloudsGroup.children.length > 0) {
@@ -873,8 +1010,6 @@
             const cloudCount = 15;
             for (let i = 0; i < cloudCount; i++) {
                 const cloud = new THREE.Group();
-
-                // 솜사탕처럼 부드럽고 뽀송한 클러스터 구체들
                 const puffCount = 5 + Math.floor(Math.random() * 3);
                 const cloudMat = new THREE.MeshStandardMaterial({
                     color: isNight ? 0x334155 : 0xffffff,
@@ -899,13 +1034,11 @@
                     cloud.add(puff);
                 }
 
-                // 섬 상공에 넓게 흩뿌리기 (Y: 34~50, 수평 반경: 25~80)
                 const angle = Math.random() * Math.PI * 2;
                 const dist = 22 + Math.random() * 62;
                 const cy = 34 + Math.random() * 16;
                 cloud.position.set(Math.cos(angle) * dist, cy, Math.sin(angle) * dist);
 
-                // 바람을 타고 유영하는 속도 (부드럽고 잔잔한 이동)
                 cloud.userData = {
                     driftSpeedX: 0.018 + Math.random() * 0.022,
                     driftSpeedZ: (Math.random() - 0.5) * 0.012,
@@ -916,7 +1049,7 @@
             }
         }
 
-        /* ======================== 벌목 가능한 나무 ======================== */
+        /* ======================== 벌목 나무 ======================== */
         function generateTrees() {
             const treePositions = [
                 { x: -18, z: 12 }, { x: -25, z: -8 }, { x: -14, z: -22 },
@@ -928,7 +1061,6 @@
                 const treeGroup = new THREE.Group();
                 treeGroup.position.set(pos.x, 0, pos.z);
 
-                // 통나무 줄기
                 const trunk = new THREE.Mesh(
                     new THREE.CylinderGeometry(0.45, 0.65, 3.2, 8),
                     new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.9 })
@@ -938,7 +1070,6 @@
                 trunk.receiveShadow = true;
                 treeGroup.add(trunk);
 
-                // 잎사귀
                 const foliage = new THREE.Mesh(
                     new THREE.DodecahedronGeometry(2.2, 1),
                     new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.6 })
@@ -968,19 +1099,19 @@
             tree.userData.shakeTimer = 10;
 
             if (tree.userData.health <= 0) {
-                // 벌목 완료
                 tree.userData.isChopped = true;
-                tree.children[1].visible = false; // 잎 제거
-                tree.children[0].scale.set(1.1, 0.35, 1.1); // 그루터기로 변형
+                tree.children[1].visible = false;
+                tree.children[0].scale.set(1.1, 0.35, 1.1);
                 tree.children[0].position.y = 0.55;
 
                 woodCount += 3;
                 document.getElementById('wood-count-text').innerText = woodCount;
+                saveVillageDataToStorage(false);
+
                 const badge = document.getElementById('wood-badge');
                 badge.classList.add('scale-125', 'bg-amber-700/70');
                 setTimeout(() => badge.classList.remove('scale-125', 'bg-amber-700/70'), 300);
 
-                // 35초 후 자동 재생성
                 setTimeout(() => {
                     tree.userData.health = 3;
                     tree.userData.isChopped = false;
@@ -991,14 +1122,12 @@
             }
         }
 
-        /* ======================== 3D 클레이 캐릭터 ======================== */
+        /* ======================== 3D 캐릭터 ======================== */
         function createClayCharacters() {
-            // 플레이어 (민우)
             playerAvatarObj = buildClayFigure(0x16a34a, 0x78350f, '민우');
             playerAvatarObj.position.set(0, 0, 7);
             outdoorGroup.add(playerAvatarObj);
 
-            // NPC 5인
             const npcs = [
                 { name: '클로버', body: 0x94a3b8, hair: 0x2dd4bf, x: -7, z: 5, glasses: true },
                 { name: '하나', body: 0x60a5fa, hair: 0x7e22ce, x: 8, z: -6 },
@@ -1023,25 +1152,21 @@
             const pantsMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
             const hairMat = new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.5 });
 
-            // 블록 몸통 (상체)
             const body = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.1, 0.45), shirtMat);
             body.position.y = 1.25;
             body.castShadow = true;
             group.add(body);
 
-            // 블록 머리 (정육면체)
             const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), skinMat);
             head.position.y = 2.2;
             head.castShadow = true;
             group.add(head);
 
-            // 블록 헤어 (머리 덮개)
             const hair = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.4, 0.86), hairMat);
             hair.position.y = 2.5;
             hair.castShadow = true;
             group.add(hair);
 
-            // 픽셀 눈 (사각 평면)
             const eyeMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
             const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.04), eyeMat);
             eyeL.position.set(-0.2, 2.18, 0.42);
@@ -1049,7 +1174,6 @@
             eyeR.position.x = 0.2;
             group.add(eyeL, eyeR);
 
-            // 안경 (블록 프레임)
             if (hasGlasses) {
                 const glassMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
                 const gL = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.22, 0.05), glassMat);
@@ -1059,7 +1183,6 @@
                 group.add(gL, gR);
             }
 
-            // 양팔 피벗 (앞뒤 회전용)
             const armGeo = new THREE.BoxGeometry(0.3, 0.95, 0.3);
             armGeo.translate(0, -0.45, 0);
 
@@ -1073,7 +1196,6 @@
             rightArm.castShadow = true;
             group.add(rightArm);
 
-            // 양다리 피벗 (앞뒤 회전용)
             const legGeo = new THREE.BoxGeometry(0.35, 0.9, 0.35);
             legGeo.translate(0, -0.45, 0);
 
@@ -1087,20 +1209,12 @@
             rightLeg.castShadow = true;
             group.add(rightLeg);
 
-            group.userData = {
-                isCharacter: true,
-                name,
-                leftArm,
-                rightArm,
-                leftLeg,
-                rightLeg
-            };
+            group.userData = { isCharacter: true, name, leftArm, rightArm, leftLeg, rightLeg };
             return group;
         }
 
-        /* ======================== 건축물 생성 (생태 연구소 & 집) ======================== */
+        /* ======================== 건축물 생성 ======================== */
         function buildAllBuildings() {
-            // 기존 메시 제거
             buildingMeshes.forEach(mesh => outdoorGroup.remove(mesh));
             buildingMeshes.clear();
 
@@ -1109,7 +1223,6 @@
                 bGroup.position.set(b.x, 0, b.z);
 
                 if (b.type === 'laboratory') {
-                    // 중앙 생태 연구소 모델링
                     const base = new THREE.Mesh(
                         new THREE.CylinderGeometry(4.2, 4.8, 2.6, 24),
                         new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3 })
@@ -1119,7 +1232,6 @@
                     base.receiveShadow = true;
                     bGroup.add(base);
 
-                    // 글래스 돔
                     const dome = new THREE.Mesh(
                         new THREE.SphereGeometry(3.6, 24, 16, 0, Math.PI * 2, 0, Math.PI * 0.5),
                         new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.65 })
@@ -1127,7 +1239,6 @@
                     dome.position.y = 2.6;
                     bGroup.add(dome);
 
-                    // 위성 안테나 레이더
                     const dish = new THREE.Mesh(
                         new THREE.TorusGeometry(0.9, 0.12, 8, 20),
                         new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6 })
@@ -1136,7 +1247,6 @@
                     dish.rotation.x = 0.4;
                     bGroup.add(dish);
 
-                    // 'E K 연구소' 정면 입체 명판 간판
                     const signCanvas = document.createElement('canvas');
                     signCanvas.width = 512;
                     signCanvas.height = 140;
@@ -1161,7 +1271,6 @@
                     signBoard.castShadow = true;
                     bGroup.add(signBoard);
                 } else {
-                    // 일반 코티지/주택 모델링
                     const body = new THREE.Mesh(
                         new THREE.BoxGeometry(4.5, 3.2, 4.5),
                         new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.6 })
@@ -1179,7 +1288,6 @@
                     bGroup.add(roof);
                 }
 
-                // 출입문
                 const door = new THREE.Mesh(
                     new THREE.BoxGeometry(1.2, 2.0, 0.3),
                     new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.4 })
@@ -1194,21 +1302,18 @@
             });
 
             updateBuildingLabels();
-            rebuildAllRoads(); // 모든 주택과 광장을 잇는 도로망 실시간 재구축
+            rebuildAllRoads();
         }
 
-        /* ======================== 자동 도로망 및 보도블록 시스템 ======================== */
+        /* ======================== 도로망 & 솔라 가로등 ======================== */
         function rebuildAllRoads() {
             if (!roadsGroup) return;
-
-            // 기존 도로 및 조명 정리
             while (roadsGroup.children.length > 0) {
                 const child = roadsGroup.children.pop();
                 if (child.geometry) child.geometry.dispose();
             }
             roadLanternMaterials = [];
 
-            // 1. 섬 중앙 광장 (E K 연구소 정면 파티오 원형 석조 광장)
             const hubCenter = new THREE.Vector3(0, 0.04, 4.2);
             const plazaRadius = 3.6;
             const stoneMatOptions = [
@@ -1217,18 +1322,15 @@
                 new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.88 })
             ];
 
-            // 광장 원형 디딤돌 타일 군집
-            const plazaTiles = 36;
-            for (let i = 0; i < plazaTiles; i++) {
+            for (let i = 0; i < 36; i++) {
                 const r = Math.sqrt(Math.random()) * plazaRadius;
                 const theta = Math.random() * Math.PI * 2;
                 const px = hubCenter.x + Math.cos(theta) * r;
                 const pz = hubCenter.z + Math.sin(theta) * r;
 
-                const tileMat = stoneMatOptions[i % stoneMatOptions.length];
                 const tile = new THREE.Mesh(
                     new THREE.BoxGeometry(0.7 + Math.random() * 0.35, 0.08, 0.7 + Math.random() * 0.35),
-                    tileMat
+                    stoneMatOptions[i % stoneMatOptions.length]
                 );
                 tile.position.set(px, 0.04, pz);
                 tile.rotation.y = Math.random() * Math.PI;
@@ -1236,21 +1338,15 @@
                 roadsGroup.add(tile);
             }
 
-            // 2. 각 주택(새 건물)으로 뻗어나가는 곡선 디딤돌 길
             buildings.forEach(b => {
-                if (b.id === 'lab-center') return; // 중앙 연구소는 허브이므로 제외
-
-                // 집 정면 출입문 앞 좌표
+                if (b.id === 'lab-center') return;
                 const houseDoorPos = new THREE.Vector3(b.x, 0.04, b.z + 3.2);
-
-                // 부드러운 완만한 곡선 산책로를 위한 중간 베지어 제어점 계산
                 const midX = (hubCenter.x + houseDoorPos.x) / 2;
                 const midZ = (hubCenter.z + houseDoorPos.z) / 2;
                 const dx = houseDoorPos.x - hubCenter.x;
                 const dz = houseDoorPos.z - hubCenter.z;
                 const dist = Math.hypot(dx, dz);
 
-                // 길이에 비례한 약간의 자연스러운 곡선 휘어짐
                 const curveFactor = Math.sin(b.x * 2.5 + b.z) * Math.min(dist * 0.22, 3.2);
                 const perpX = -dz / (dist || 1) * curveFactor;
                 const perpZ = dx / (dist || 1) * curveFactor;
@@ -1265,27 +1361,23 @@
                     const tangent = curve.getTangent(t);
                     const angleY = Math.atan2(tangent.x, tangent.z);
 
-                    // 디딤돌 메인 슬래브
-                    const slabMat = stoneMatOptions[(s + Math.floor(b.x)) % stoneMatOptions.length];
                     const slabW = 1.25 + (Math.sin(s * 1.7) * 0.18);
                     const slabD = 0.85 + (Math.cos(s * 1.3) * 0.15);
                     const slab = new THREE.Mesh(
                         new THREE.BoxGeometry(slabW, 0.08, slabD),
-                        slabMat
+                        stoneMatOptions[(s + Math.floor(b.x)) % stoneMatOptions.length]
                     );
                     slab.position.set(pos.x, 0.04, pos.z);
                     slab.rotation.y = angleY + (Math.sin(s) * 0.12);
                     slab.receiveShadow = true;
                     roadsGroup.add(slab);
 
-                    // 3~4칸 간격으로 길 양옆에 작은 솔라 잔디등(가로등) 자동 배치
                     if (s % 3 === 1 && s < steps) {
                         const sideSign = (s % 6 === 1) ? 1 : -1;
                         const sideDist = 0.95;
                         const lampX = pos.x + (-tangent.z) * sideSign * sideDist;
                         const lampZ = pos.z + (tangent.x) * sideSign * sideDist;
 
-                        // 가로등 기둥
                         const post = new THREE.Mesh(
                             new THREE.CylinderGeometry(0.04, 0.06, 0.55, 8),
                             new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 })
@@ -1294,7 +1386,6 @@
                         post.castShadow = true;
                         roadsGroup.add(post);
 
-                        // 가로등 램프 큐브 (밤낮에 따라 은은하게 발광)
                         const lampMat = new THREE.MeshStandardMaterial({
                             color: isNight ? 0xfef08a : 0xfde047,
                             roughness: 0.2,
@@ -1314,7 +1405,7 @@
             });
         }
 
-        /* ======================== 건물 이름 라벨 & 이름 변경 ======================== */
+        /* ======================== 건물 이름 라벨 ======================== */
         function updateBuildingLabels() {
             const container = document.getElementById('building-labels-container');
             if (!container) return;
@@ -1325,7 +1416,6 @@
                 badge.id = `label-${b.id}`;
                 badge.className = 'absolute -translate-x-1/2 -translate-y-1/2 pointer-events-auto flex items-center gap-1.5 glass-panel px-2.5 py-1 rounded-xl shadow-lg border border-white/20 transition-opacity';
                 
-                // 중심 연구소(lab-center)는 보호하고, 새로 지은 집들만 철거 버튼 표시
                 const demolishBtnHtml = (b.id !== 'lab-center')
                     ? `<button class="text-[11px] hover:scale-125 transition-transform text-rose-400 hover:text-rose-300 ml-0.5" onclick="openDemolishModal('${b.id}')" title="건물 철거">🗑️</button>`
                     : '';
@@ -1354,21 +1444,15 @@
         if (btnConfirmDemolish) {
             btnConfirmDemolish.onclick = () => {
                 if (!demolishingBuildingId || demolishingBuildingId === 'lab-center') return;
-                
-                // 3D 건물 메시 제거
                 const mesh = buildingMeshes.get(demolishingBuildingId);
                 if (mesh) {
                     outdoorGroup.remove(mesh);
                     buildingMeshes.delete(demolishingBuildingId);
                 }
-
-                // 건물 배열에서 제거
                 buildings = buildings.filter(b => b.id !== demolishingBuildingId);
-
-                // 라벨 및 도로망 자동 재정비
                 updateBuildingLabels();
                 rebuildAllRoads();
-
+                saveVillageDataToStorage(false);
                 closeModal('modal-demolish-building');
                 demolishingBuildingId = null;
             };
@@ -1394,25 +1478,20 @@
                 if (b && newName) {
                     b.name = newName;
                     updateBuildingLabels();
+                    saveVillageDataToStorage(false);
                 }
                 closeModal('modal-edit-name');
             };
         }
 
-        const inputRenameBuilding = document.getElementById('input-rename-building');
-        if (inputRenameBuilding && btnSaveBuildingName) {
-            inputRenameBuilding.onkeydown = e => {
-                if (e.key === 'Enter') btnSaveBuildingName.click();
-            };
-        }
-
-        /* ======================== 실내 씬 빌드 (웨인스코팅) ======================== */
+        /* ======================== 실내 공간 빌드 ======================== */
         function enterBuilding(bId) {
             const b = buildings.find(x => x.id === bId);
             if (!b) return;
             currentBuilding = b;
             currentRoomIndex = 0;
             isInsideRoom = true;
+            isAllRoomsMode = false;
             nearbyBuilding = null;
             const proxPrompt = document.getElementById('building-proximity-prompt');
             if (proxPrompt) proxPrompt.classList.add('hidden');
@@ -1421,7 +1500,6 @@
             indoorGroup.visible = true;
 
             document.getElementById('outdoor-top-bar').classList.add('hidden');
-            // 실내에서도 모바일 조이스틱 유지
             document.getElementById('joystick-zone').classList.remove('hidden');
             document.getElementById('building-labels-container').classList.add('hidden');
             document.getElementById('room-top-bar').classList.remove('hidden');
@@ -1429,11 +1507,8 @@
 
             updateRoomSelectorUI();
             rebuildIndoorRoom();
-
-            // 카메라 모드 초기화 (캐릭터 추적 시점)
             setRoomCamMode('follow');
 
-            // 캐릭터를 실내로 이동 배치 (방 입구에서 안쪽을 바라봄)
             if (playerAvatarObj) {
                 indoorGroup.add(playerAvatarObj);
                 playerAvatarObj.position.set(0, 0, 5.5);
@@ -1441,16 +1516,15 @@
                 playerAvatarObj.rotation.y = playerYaw;
             }
 
-            // 실내 카메라 초기 시점
             camera.position.set(0, 5.8, 9.8);
             camera.lookAt(0, 1.2, 0);
         }
 
         function leaveBuilding() {
+            saveVillageDataToStorage(false);
             isInsideRoom = false;
             isAllRoomsMode = false;
 
-            // 캐릭터를 다시 야외로 복귀 (건물 문 앞)
             if (playerAvatarObj) {
                 outdoorGroup.add(playerAvatarObj);
                 if (currentBuilding) {
@@ -1482,7 +1556,6 @@
         }
 
         function rebuildIndoorRoom() {
-            // 방 갱신 시 캐릭터 아바타는 삭제되지 않도록 보존
             for (let i = indoorGroup.children.length - 1; i >= 0; i--) {
                 const child = indoorGroup.children[i];
                 if (child !== playerAvatarObj) {
@@ -1490,26 +1563,22 @@
                 }
             }
 
-            // 실내 균일 조명
             const roomAmbient = new THREE.AmbientLight(0xffffff, 1.25);
             indoorGroup.add(roomAmbient);
 
             const roomW = 18, roomD = 16, roomH = 5.8;
-            const roomSpacing = 22; // 방들을 나란히 배치할 때의 중심축 간격
+            const roomSpacing = 22;
 
-            // 1. "전체 방 보기" 모드인 경우 모든 방을 X축으로 나란히 동시 렌더링
             if (isAllRoomsMode && currentBuilding) {
                 currentBuilding.rooms.forEach((room, rIdx) => {
                     const offsetX = (rIdx - (currentBuilding.rooms.length - 1) / 2) * roomSpacing;
                     buildSingleRoomStructure(room, rIdx, offsetX, roomW, roomD, roomH, true);
                 });
-            } else {
-                // 단독 방 뷰 모드
+            } else if (currentBuilding && currentBuilding.rooms[currentRoomIndex]) {
                 const room = currentBuilding.rooms[currentRoomIndex];
                 buildSingleRoomStructure(room, currentRoomIndex, 0, roomW, roomD, roomH, false);
             }
 
-            // 실내 모든 오브젝트 그림자 해제
             indoorGroup.traverse(child => {
                 if (child.isMesh) {
                     child.castShadow = false;
@@ -1522,7 +1591,6 @@
             const subGroup = new THREE.Group();
             subGroup.position.x = offsetX;
 
-            // 오크 마루 바닥 (선택된 방은 살짝 밝게 강조)
             const isCurrentActive = (rIdx === currentRoomIndex);
             const floorMat = new THREE.MeshStandardMaterial({
                 color: isCurrentActive ? 0xb45309 : 0x92400e,
@@ -1533,12 +1601,10 @@
             floor.rotation.x = -Math.PI / 2;
             subGroup.add(floor);
 
-            // 공통 벽면 재질
             const wallMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.85 });
             const wainscotMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.5 });
             const trimMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.4 });
 
-            // 뒷벽 & 웨인스코팅
             const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(roomW, roomH), wallMat);
             wallBack.position.set(0, roomH / 2, -roomD / 2);
             subGroup.add(wallBack);
@@ -1547,7 +1613,6 @@
             moldingBack.position.set(0, 0.65, -roomD / 2 + 0.06);
             subGroup.add(moldingBack);
 
-            // 좌측 벽
             const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(roomD, roomH), wallMat);
             wallLeft.rotation.y = Math.PI / 2;
             wallLeft.position.set(-roomW / 2, roomH / 2, 0);
@@ -1557,7 +1622,6 @@
             moldingLeft.position.set(-roomW / 2 + 0.06, 0.65, 0);
             subGroup.add(moldingLeft);
 
-            // 우측 벽
             const wallRight = new THREE.Mesh(new THREE.PlaneGeometry(roomD, roomH), wallMat);
             wallRight.rotation.y = -Math.PI / 2;
             wallRight.position.set(roomW / 2, roomH / 2, 0);
@@ -1567,21 +1631,19 @@
             moldingRight.position.set(roomW / 2 - 0.06, 0.65, 0);
             subGroup.add(moldingRight);
 
-            // 기둥
             [[-roomW / 2, -roomD / 2], [roomW / 2, -roomD / 2]].forEach(([px, pz]) => {
                 const column = new THREE.Mesh(new THREE.BoxGeometry(0.5, roomH, 0.5), trimMat);
                 column.position.set(px, roomH / 2, pz);
                 subGroup.add(column);
             });
 
-            // 좌측 햇살 창문
             const winFrame = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.6, 3.8), new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.4 }));
             winFrame.position.set(-roomW / 2 + 0.1, 3.2, 0);
             const winGlass = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.3, 3.5), new THREE.MeshStandardMaterial({ color: 0x7dd3fc, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.75 }));
             winGlass.position.set(-roomW / 2 + 0.12, 3.2, 0);
             subGroup.add(winFrame, winGlass);
 
-            // 방 식별 상단 라벨 (전체 보기 모드일 때 각 방 위에 명판 표시)
+            // 전체 방 보기 모드 시 상단에 클릭 가능한 방 명판 표시
             if (isOverview) {
                 const titleCanvas = document.createElement('canvas');
                 titleCanvas.width = 400;
@@ -1601,10 +1663,10 @@
                 const titleTex = new THREE.CanvasTexture(titleCanvas);
                 const titleBoard = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 1.2), new THREE.MeshBasicMaterial({ map: titleTex }));
                 titleBoard.position.set(0, 6.4, -roomD / 2 + 0.2);
+                titleBoard.userData = { isOverviewRoomTitle: true, targetRoomIndex: rIdx };
                 subGroup.add(titleBoard);
             }
 
-            // 연결 통로 문
             if (rIdx > 0) {
                 const prevRoom = currentBuilding.rooms[rIdx - 1];
                 subGroup.add(createRoomDoorMesh({
@@ -1636,7 +1698,6 @@
                 }));
             }
 
-            // 가구 배치
             room.furnitures.forEach(f => {
                 const fMesh = buildFurniture3D(f);
                 subGroup.add(fMesh);
@@ -1645,13 +1706,11 @@
             indoorGroup.add(subGroup);
         }
 
-        /* ======================== 3D 연결 통로 문(Doorway) 생성 ======================== */
         function createRoomDoorMesh({ x, z, rotY, label, targetRoomIndex, isAddRoom = false }) {
             const doorGroup = new THREE.Group();
             doorGroup.position.set(x, 0, z);
             doorGroup.rotation.y = rotY;
 
-            // 원목 문틀
             const frameMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4 });
             const frameL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 3.8, 0.2), frameMat);
             frameL.position.set(-1.1, 1.9, 0);
@@ -1661,7 +1720,6 @@
             frameT.position.set(0, 3.7, 0);
             doorGroup.add(frameL, frameR, frameT);
 
-            // 문짝 (새 방 연결문은 에메랄드, 일반 방 문은 따스한 오크 원목)
             const doorLeafMat = new THREE.MeshStandardMaterial({
                 color: isAddRoom ? 0x059669 : 0x78350f,
                 roughness: 0.5
@@ -1670,13 +1728,11 @@
             doorLeaf.position.set(0, 1.8, 0);
             doorGroup.add(doorLeaf);
 
-            // 골드 문 손잡이
             const handleMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.8, roughness: 0.2 });
             const handle = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), handleMat);
             handle.position.set(0.75, 1.7, 0.08);
             doorGroup.add(handle);
 
-            // 문 상단 안내 명판 (Canvas Texture)
             const signCanvas = document.createElement('canvas');
             signCanvas.width = 380;
             signCanvas.height = 100;
@@ -1700,30 +1756,20 @@
             signMesh.position.set(0, 3.1, 0.08);
             doorGroup.add(signMesh);
 
-            doorGroup.userData = {
-                isRoomDoor: true,
-                targetRoomIndex,
-                isAddRoom
-            };
+            doorGroup.userData = { isRoomDoor: true, targetRoomIndex, isAddRoom };
             doorGroup.traverse(child => {
-                child.userData = {
-                    isRoomDoor: true,
-                    targetRoomIndex,
-                    isAddRoom
-                };
+                child.userData = { isRoomDoor: true, targetRoomIndex, isAddRoom };
             });
 
             return doorGroup;
         }
 
-        /* ======================== 룸 전환 및 상단 네비게이션 관리 ======================== */
         function switchRoom(newIndex) {
             if (!currentBuilding || newIndex < 0 || newIndex >= currentBuilding.rooms.length) return;
             currentRoomIndex = newIndex;
             updateRoomSelectorUI();
             rebuildIndoorRoom();
 
-            // 방 이동 시 캐릭터 위치를 입구 근처로 배치
             if (playerAvatarObj) {
                 playerAvatarObj.position.set(0, 0, 4.5);
                 playerYaw = Math.PI;
@@ -1764,16 +1810,32 @@
             if (!inputVal) return;
 
             if (isAddingNewRoomModal) {
-                // 새 방 추가
                 currentBuilding.rooms.push({ name: inputVal, furnitures: [] });
-                switchRoom(currentBuilding.rooms.length - 1);
+                currentRoomIndex = currentBuilding.rooms.length - 1;
+
+                // 새 방 확장 즉시 전체 방 조감도 모드로 자동 전환 및 카메라 오토 피팅 세팅
+                isAllRoomsMode = true;
+                const btnAll = document.getElementById('btn-room-all-view');
+                const txtAll = document.getElementById('room-all-text');
+                if (btnAll) btnAll.classList.add('bg-teal-600', 'text-white');
+                if (txtAll) txtAll.innerText = '단독 방 복귀';
+                setRoomCamMode('iso');
+
+                const rCount = currentBuilding.rooms.length;
+                roomOrbitAngles.radius = Math.hypot(16 + (rCount * 6.5), 18 + (rCount * 5.5));
+                roomOrbitAngles.theta = 0;
+                roomOrbitAngles.phi = 1.05;
+
+                updateRoomSelectorUI();
+                rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
             } else {
-                // 현재 방 이름 변경
                 const room = currentBuilding.rooms[currentRoomIndex];
                 if (room) {
                     room.name = inputVal;
                     updateRoomSelectorUI();
                     rebuildIndoorRoom();
+                    saveVillageDataToStorage(false);
                 }
             }
             closeModal('modal-edit-room-name');
@@ -1781,21 +1843,14 @@
 
         function deleteCurrentSubRoom() {
             if (!currentBuilding) return;
-            if (currentBuilding.rooms.length <= 1) {
-                const delBtn = document.getElementById('btn-delete-subroom');
-                if (delBtn) {
-                    delBtn.classList.add('bg-rose-600', 'animate-bounce');
-                    setTimeout(() => delBtn.classList.remove('bg-rose-600', 'animate-bounce'), 800);
-                }
-                return;
-            }
+            if (currentBuilding.rooms.length <= 1) return;
 
-            // 현재 방 제거
             currentBuilding.rooms.splice(currentRoomIndex, 1);
             currentRoomIndex = Math.max(0, currentRoomIndex - 1);
             updateRoomSelectorUI();
             rebuildIndoorRoom();
             deselectFurniture();
+            saveVillageDataToStorage(false);
         }
 
         function toggleAllRoomsView() {
@@ -1807,6 +1862,13 @@
                 btn.classList.add('bg-teal-600', 'text-white');
                 txt.innerText = '단독 방 복귀';
                 setRoomCamMode('iso');
+
+                if (currentBuilding) {
+                    const roomCount = currentBuilding.rooms.length;
+                    roomOrbitAngles.radius = Math.hypot(16 + (roomCount * 6.5), 18 + (roomCount * 5.5));
+                    roomOrbitAngles.theta = 0;
+                    roomOrbitAngles.phi = 1.05;
+                }
             } else {
                 btn.classList.remove('bg-teal-600', 'text-white');
                 txt.innerText = '전체 방 보기';
@@ -1828,7 +1890,6 @@
                 select.appendChild(opt);
             });
 
-            // 1번 메인 룸은 삭제 버튼 비활성화 시각화
             const delBtn = document.getElementById('btn-delete-subroom');
             if (delBtn) {
                 if (currentBuilding.rooms.length <= 1) {
@@ -1839,7 +1900,7 @@
             }
         }
 
-        /* ======================== 3D 가구 모델링 (책장, 단권, 북엔드 등) ======================== */
+        /* ======================== 3D 가구 모델링 ======================== */
         function buildFurniture3D(f) {
             const group = new THREE.Group();
             group.position.set(f.x, f.y || 0, f.z);
@@ -1847,7 +1908,6 @@
             const mat = new THREE.MeshStandardMaterial({ color: f.color || '#b45309', roughness: 0.6 });
 
             if (f.type === 'bookshelf') {
-                // 3단 오픈 책장
                 const frameMat = mat;
                 const sideL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 3.2, 1.1), frameMat);
                 sideL.position.x = -1.1;
@@ -1866,11 +1926,9 @@
                 group.add(sideL, sideR, topPlate, botPlate, shelf1, shelf2);
                 group.position.y = 1.6;
 
-                // 꽂혀있는 책들 렌더링 (동적으로 꽂힌 권수에 맞춰 실시간 표시)
                 const books = f.books || [];
                 const colors = [0xef4444, 0x0284c7, 0x10b981, 0xf59e0b, 0x8b5cf6, 0xec4899];
                 books.forEach((title, idx) => {
-                    // 책장 2개 층에 나누어 배치
                     const shelfLevel = idx < 6 ? -0.05 : 0.98;
                     const colIndex = idx % 6;
                     const bookW = 0.16, bookH = 0.78, bookD = 0.75;
@@ -1880,18 +1938,15 @@
                     });
                     const bMesh = new THREE.Mesh(new THREE.BoxGeometry(bookW, bookH, bookD), bookMat);
                     bMesh.position.set(-0.8 + colIndex * 0.28, shelfLevel, 0.05);
-                    // 살짝 책들이 꽂힌 각도 편차를 주어 자연스러운 질감 연출
                     bMesh.rotation.y = (idx % 2 === 0 ? 0.04 : -0.04);
                     bMesh.userData = { isBook: true, bookTitle: title, shelfData: f };
                     group.add(bMesh);
                 });
             } else if (f.type === 'single_book') {
-                // 단권 양장본
                 const book = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.14, 1.1), mat);
                 group.add(book);
                 group.position.y = 0.07;
             } else if (f.type === 'book_set') {
-                // 북엔드 세트
                 for (let i = 0; i < 4; i++) {
                     const b = new THREE.Mesh(
                         new THREE.BoxGeometry(0.16, 0.8, 0.7),
@@ -1917,137 +1972,79 @@
                     group.add(leg);
                 });
             } else if (f.type === 'wall_clock') {
-                // 1. 시계 프레임 (원형 케이스)
                 const frameMat = new THREE.MeshStandardMaterial({ color: f.color || 0x334155, roughness: 0.35, metalness: 0.3 });
                 const clockFrame = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.12, 36), frameMat);
                 clockFrame.rotation.x = Math.PI / 2;
-                clockFrame.castShadow = true;
                 group.add(clockFrame);
 
-                // 2. 시계 다이얼 캔버스 텍스처 (1~12 숫자 및 바늘)
                 const clockCanvas = document.createElement('canvas');
                 clockCanvas.width = 512;
                 clockCanvas.height = 512;
                 const cctx = clockCanvas.getContext('2d');
-
-                // 다이얼 배경 원
                 cctx.fillStyle = '#ffffff';
                 cctx.beginPath();
                 cctx.arc(256, 256, 246, 0, Math.PI * 2);
                 cctx.fill();
-
-                // 외곽 링 테두리
                 cctx.strokeStyle = '#0f172a';
                 cctx.lineWidth = 10;
                 cctx.stroke();
 
-                // 분/초 눈금 (Ticks)
                 for (let i = 0; i < 60; i++) {
                     const angle = (i / 60) * Math.PI * 2;
                     const isHour = i % 5 === 0;
-                    const r1 = isHour ? 218 : 230;
-                    const r2 = 240;
                     cctx.strokeStyle = isHour ? '#0f172a' : '#94a3b8';
                     cctx.lineWidth = isHour ? 6 : 3;
                     cctx.beginPath();
-                    cctx.moveTo(256 + Math.cos(angle) * r1, 256 + Math.sin(angle) * r1);
-                    cctx.lineTo(256 + Math.cos(angle) * r2, 256 + Math.sin(angle) * r2);
+                    cctx.moveTo(256 + Math.cos(angle) * (isHour ? 218 : 230), 256 + Math.sin(angle) * (isHour ? 218 : 230));
+                    cctx.lineTo(256 + Math.cos(angle) * 240, 256 + Math.sin(angle) * 240);
                     cctx.stroke();
                 }
 
-                // 1부터 12까지 숫자 렌더링
                 cctx.fillStyle = '#0f172a';
                 cctx.font = 'bold 44px "Inter", sans-serif';
                 cctx.textAlign = 'center';
                 cctx.textBaseline = 'middle';
                 for (let num = 1; num <= 12; num++) {
                     const angle = (num / 12) * Math.PI * 2 - Math.PI / 2;
-                    const nx = 256 + Math.cos(angle) * 175;
-                    const ny = 256 + Math.sin(angle) * 175;
-                    cctx.fillText(num.toString(), nx, ny);
+                    cctx.fillText(num.toString(), 256 + Math.cos(angle) * 175, 256 + Math.sin(angle) * 175);
                 }
 
-                // 시침 (10시 방향)
-                const hAngle = (10 / 12) * Math.PI * 2 - Math.PI / 2 + 0.1;
                 cctx.strokeStyle = '#1e293b';
                 cctx.lineWidth = 12;
                 cctx.lineCap = 'round';
                 cctx.beginPath();
                 cctx.moveTo(256, 256);
-                cctx.lineTo(256 + Math.cos(hAngle) * 95, 256 + Math.sin(hAngle) * 95);
+                cctx.lineTo(256 + Math.cos((10 / 12) * Math.PI * 2 - Math.PI / 2 + 0.1) * 95, 256 + Math.sin((10 / 12) * Math.PI * 2 - Math.PI / 2 + 0.1) * 95);
                 cctx.stroke();
 
-                // 분침 (2시 방향)
-                const mAngle = (2 / 12) * Math.PI * 2 - Math.PI / 2;
-                cctx.strokeStyle = '#334155';
-                cctx.lineWidth = 8;
-                cctx.beginPath();
-                cctx.moveTo(256, 256);
-                cctx.lineTo(256 + Math.cos(mAngle) * 145, 256 + Math.sin(mAngle) * 145);
-                cctx.stroke();
-
-                // 초침 (빨간색)
-                const sAngle = (7 / 12) * Math.PI * 2 - Math.PI / 2;
                 cctx.strokeStyle = '#ef4444';
                 cctx.lineWidth = 4;
                 cctx.beginPath();
-                cctx.moveTo(256 - Math.cos(sAngle) * 25, 256 - Math.sin(sAngle) * 25);
-                cctx.lineTo(256 + Math.cos(sAngle) * 165, 256 + Math.sin(sAngle) * 165);
+                cctx.moveTo(256, 256);
+                cctx.lineTo(256 + Math.cos((7 / 12) * Math.PI * 2 - Math.PI / 2) * 165, 256 + Math.sin((7 / 12) * Math.PI * 2 - Math.PI / 2) * 165);
                 cctx.stroke();
 
-                // 중앙 중심 핀
-                cctx.fillStyle = '#ef4444';
-                cctx.beginPath();
-                cctx.arc(256, 256, 11, 0, Math.PI * 2);
-                cctx.fill();
-
                 const clockTex = new THREE.CanvasTexture(clockCanvas);
-                const dial = new THREE.Mesh(
-                    new THREE.CircleGeometry(0.66, 36),
-                    new THREE.MeshStandardMaterial({ map: clockTex, roughness: 0.3 })
-                );
+                const dial = new THREE.Mesh(new THREE.CircleGeometry(0.66, 36), new THREE.MeshStandardMaterial({ map: clockTex, roughness: 0.3 }));
                 dial.position.z = 0.065;
                 group.add(dial);
             } else if (f.type === 'memo_board') {
                 group.userData.isMemo = true;
+                if (!f.memoContent) f.memoContent = '1. 현장 안전모 착용\n2. 도면 검토 확인\n3. 마감 청소 완료';
 
-                if (!f.memoContent) {
-                    f.memoContent = '1. 현장 안전모 및 보호구 착용 필수\n2. 도면 승인 및 배관 자재 규격 확인\n3. 작업 완료 후 소화기 위치 점검';
-                }
-
-                // 1. 코르크/우드 게시판 백보드
-                const boardMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 });
-                const boardBack = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.84, 0.08), boardMat);
-                boardBack.castShadow = true;
+                const boardBack = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.84, 0.08), new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 }));
                 boardBack.userData.isMemo = true;
                 group.add(boardBack);
 
-                // 상단 고정 압정 / 핀 2개 (레드 & 블루)
-                const pinMat1 = new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.6, roughness: 0.2 });
-                const pinMat2 = new THREE.MeshStandardMaterial({ color: 0x3b82f6, metalness: 0.6, roughness: 0.2 });
-                const pin1 = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), pinMat1);
-                pin1.position.set(-0.45, 0.78, 0.06);
-                pin1.userData.isMemo = true;
-                const pin2 = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), pinMat2);
-                pin2.position.set(0.45, 0.78, 0.06);
-                pin2.userData.isMemo = true;
-                group.add(pin1, pin2);
-
-                // 2. 메모지 캔버스 텍스처 (포스트잇 질감 + 메모 본문 인쇄)
                 const memoCanvas = document.createElement('canvas');
                 memoCanvas.width = 512;
                 memoCanvas.height = 640;
                 const ctx = memoCanvas.getContext('2d');
-
-                // 따뜻한 옐로우 포스트잇 종이 배경
                 ctx.fillStyle = '#fef08a';
                 ctx.fillRect(0, 0, 512, 640);
-
-                // 상단 헤더 배너
                 ctx.fillStyle = f.color || '#f59e0b';
                 ctx.fillRect(0, 0, 512, 96);
 
-                // 헤더 텍스트 (가구 커스텀 이름)
                 ctx.fillStyle = '#ffffff';
                 const memoTitle = f.customName || '현장 알림 메모장';
                 ctx.font = memoTitle.length > 10 ? 'bold 28px "Inter", sans-serif' : 'bold 34px "Inter", sans-serif';
@@ -2055,17 +2052,6 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillText(memoTitle, 256, 48);
 
-                // 줄눈 (노트 눈금선)
-                ctx.strokeStyle = 'rgba(217, 119, 6, 0.25)';
-                ctx.lineWidth = 2;
-                for (let y = 140; y <= 600; y += 46) {
-                    ctx.beginPath();
-                    ctx.moveTo(24, y);
-                    ctx.lineTo(488, y);
-                    ctx.stroke();
-                }
-
-                // 메모 본문 출력 (자동 줄바꿈 렌더링)
                 ctx.fillStyle = '#1c1917';
                 ctx.font = '500 23px "Inter", sans-serif';
                 ctx.textAlign = 'left';
@@ -2073,70 +2059,43 @@
 
                 const lines = f.memoContent.split('\n');
                 let curY = 115;
-                const maxLineY = 590;
-
-                for (let i = 0; i < lines.length && curY < maxLineY; i++) {
-                    const rawLine = lines[i];
-                    // 긴 줄 자동 래핑 (한글 18자 내외)
-                    let remaining = rawLine;
-                    while (remaining.length > 0 && curY < maxLineY) {
-                        let sub = remaining.substring(0, 18);
-                        remaining = remaining.substring(18);
-                        ctx.fillText(sub, 32, curY);
+                for (let i = 0; i < lines.length && curY < 590; i++) {
+                    let rem = lines[i];
+                    while (rem.length > 0 && curY < 590) {
+                        ctx.fillText(rem.substring(0, 18), 32, curY);
+                        rem = rem.substring(18);
                         curY += 46;
                     }
                 }
 
                 const memoTex = new THREE.CanvasTexture(memoCanvas);
-                const memoSheet = new THREE.Mesh(
-                    new THREE.PlaneGeometry(1.38, 1.7),
-                    new THREE.MeshStandardMaterial({ map: memoTex, roughness: 0.65 })
-                );
+                const memoSheet = new THREE.Mesh(new THREE.PlaneGeometry(1.38, 1.7), new THREE.MeshStandardMaterial({ map: memoTex, roughness: 0.65 }));
                 memoSheet.position.set(0, -0.02, 0.045);
                 memoSheet.userData.isMemo = true;
                 group.add(memoSheet);
             } else if (f.type === 'checklist_board') {
                 group.userData.isChecklist = true;
-
-                // 기본 체크리스트 데이터가 없으면 초기 점검 항목 자동 할당
                 if (!f.checklist) {
                     f.checklist = [
-                        { id: 'chk-1', text: '작업 구역 안전 점검 및 위험 요소 확인', done: true },
-                        { id: 'chk-2', text: '시공 자재 및 공구 규격 반입 검수', done: true },
-                        { id: 'chk-3', text: '방수층 실링 및 배관 결속 상태 점검', done: false },
-                        { id: 'chk-4', text: '현장 마감 청소 및 사진 기록 첨부', done: false }
+                        { id: 'chk-1', text: '작업 구역 안전 점검 확인', done: true },
+                        { id: 'chk-2', text: '시공 자재 및 공구 검수', done: true },
+                        { id: 'chk-3', text: '배관 결속 상태 점검', done: false }
                     ];
                 }
 
-                // 1. 클립보드 원목 백보드
-                const boardMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.5 });
-                const boardBack = new THREE.Mesh(new THREE.BoxGeometry(1.44, 1.9, 0.08), boardMat);
-                boardBack.castShadow = true;
+                const boardBack = new THREE.Mesh(new THREE.BoxGeometry(1.44, 1.9, 0.08), new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.5 }));
                 boardBack.userData.isChecklist = true;
                 group.add(boardBack);
 
-                // 상단 금속 클립 (골드/브라스)
-                const clipMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.25 });
-                const clip = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.2, 0.12), clipMat);
-                clip.position.set(0, 0.9, 0.03);
-                clip.userData.isChecklist = true;
-                group.add(clip);
-
-                // 2. 체크리스트 서식 인쇄 캔버스 텍스처
                 const chkCanvas = document.createElement('canvas');
                 chkCanvas.width = 512;
                 chkCanvas.height = 680;
                 const ctx = chkCanvas.getContext('2d');
-
-                // 종이 배경
                 ctx.fillStyle = '#f8fafc';
                 ctx.fillRect(0, 0, 512, 680);
-
-                // 상단 블루 헤더 배너
                 ctx.fillStyle = f.color || '#0284c7';
                 ctx.fillRect(0, 0, 512, 100);
 
-                // 헤더 텍스트 (커스텀 이름 우선 반영)
                 ctx.fillStyle = '#ffffff';
                 const chkTitle = f.customName || '현장 작업 체크리스트';
                 ctx.font = chkTitle.length > 10 ? 'bold 28px "Inter", sans-serif' : 'bold 34px "Inter", sans-serif';
@@ -2144,7 +2103,6 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillText(chkTitle, 256, 50);
 
-                // 진행 상황 계산 및 서브타이틀
                 const total = f.checklist.length;
                 const completed = f.checklist.filter(i => i.done).length;
                 const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
@@ -2154,153 +2112,52 @@
                 ctx.textAlign = 'left';
                 ctx.fillText(`점검 완료: ${completed} / ${total}건 (${pct}%)`, 28, 134);
 
-                // 프로그레스 바 배경
-                ctx.fillStyle = '#e2e8f0';
-                ctx.fillRect(28, 150, 456, 12);
-                ctx.fillStyle = pct === 100 ? '#10b981' : '#0284c7';
-                ctx.fillRect(28, 150, (456 * pct) / 100, 12);
-
-                // 체크 항목 목록 (상위 5건 렌더링)
-                const itemsToDraw = f.checklist.slice(0, 6);
-                itemsToDraw.forEach((item, idx) => {
-                    const rowY = 205 + idx * 72;
-
-                    // 가로 줄눈
-                    ctx.strokeStyle = '#e2e8f0';
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.moveTo(28, rowY + 38);
-                    ctx.lineTo(484, rowY + 38);
-                    ctx.stroke();
-
-                    // 체크박스 사각형
+                f.checklist.slice(0, 6).forEach((item, idx) => {
+                    const rowY = 195 + idx * 72;
                     ctx.strokeStyle = item.done ? '#10b981' : '#64748b';
                     ctx.lineWidth = 3;
                     ctx.strokeRect(32, rowY, 30, 30);
-
                     if (item.done) {
                         ctx.fillStyle = '#10b981';
                         ctx.fillRect(35, rowY + 3, 24, 24);
-                        // 체크 표시 (V)
-                        ctx.strokeStyle = '#ffffff';
-                        ctx.lineWidth = 4;
-                        ctx.beginPath();
-                        ctx.moveTo(40, rowY + 15);
-                        ctx.lineTo(46, rowY + 22);
-                        ctx.lineTo(54, rowY + 8);
-                        ctx.stroke();
                     }
-
-                    // 텍스트 (완료 시 취소선 느낌 연출)
                     ctx.fillStyle = item.done ? '#94a3b8' : '#0f172a';
                     ctx.font = item.done ? '22px "Inter", sans-serif' : 'bold 22px "Inter", sans-serif';
-                    ctx.textAlign = 'left';
-                    const truncatedText = item.text.length > 17 ? item.text.substring(0, 17) + '...' : item.text;
-                    ctx.fillText(truncatedText, 76, rowY + 18);
+                    ctx.fillText(item.text.length > 17 ? item.text.substring(0, 17) + '...' : item.text, 76, rowY + 18);
                 });
 
                 const chkTex = new THREE.CanvasTexture(chkCanvas);
-                const chkSheet = new THREE.Mesh(
-                    new THREE.PlaneGeometry(1.36, 1.76),
-                    new THREE.MeshStandardMaterial({ map: chkTex, roughness: 0.6 })
-                );
+                const chkSheet = new THREE.Mesh(new THREE.PlaneGeometry(1.36, 1.76), new THREE.MeshStandardMaterial({ map: chkTex, roughness: 0.6 }));
                 chkSheet.position.set(0, -0.02, 0.045);
                 chkSheet.userData.isChecklist = true;
                 group.add(chkSheet);
             } else if (f.type === 'calendar_board') {
                 group.userData.isCalendar = true;
-
-                // 1. 달력 백보드 (원목/다크 프레임)
-                const boardMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
-                const boardBack = new THREE.Mesh(new THREE.BoxGeometry(1.44, 1.84, 0.08), boardMat);
-                boardBack.castShadow = true;
+                const boardBack = new THREE.Mesh(new THREE.BoxGeometry(1.44, 1.84, 0.08), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 }));
                 boardBack.userData.isCalendar = true;
                 group.add(boardBack);
 
-                // 상단 고정 헤더 클립
-                const clipMat = new THREE.MeshStandardMaterial({ color: f.color || 0x059669, roughness: 0.3, metalness: 0.5 });
-                const clip = new THREE.Mesh(new THREE.BoxGeometry(1.46, 0.18, 0.1), clipMat);
-                clip.position.set(0, 0.9, 0.01);
-                clip.userData.isCalendar = true;
-                group.add(clip);
-
-                // 2. 달력 캔버스 텍스처 (1~31 날짜 격자)
                 const calCanvas = document.createElement('canvas');
                 calCanvas.width = 512;
                 calCanvas.height = 640;
                 const ctx = calCanvas.getContext('2d');
-
-                // 종이 배경
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, 512, 640);
-
-                // 상단 월 타이틀 바 (녹음/에메랄드)
                 ctx.fillStyle = f.color || '#059669';
                 ctx.fillRect(0, 0, 512, 115);
 
-                // 월 타이틀 텍스트
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 38px "Inter", sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('2026. 11', 256, 42);
 
-                const calSub = f.customName || 'NOVEMBER';
-                ctx.font = calSub.length > 12 ? 'bold 16px "Inter", sans-serif' : 'bold 19px "Inter", sans-serif';
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                ctx.fillText(calSub, 256, 84);
-
-                // 요일 헤더 행 (SUN ~ SAT)
-                const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-                ctx.font = 'bold 21px "Inter", sans-serif';
-                for (let d = 0; d < 7; d++) {
-                    const cx = d * (512 / 7) + (512 / 14);
-                    ctx.fillStyle = d === 0 ? '#ef4444' : (d === 6 ? '#2563eb' : '#64748b');
-                    ctx.fillText(dayNames[d], cx, 142);
-                }
-
-                // 구분선
-                ctx.strokeStyle = '#e2e8f0';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(15, 168);
-                ctx.lineTo(497, 168);
-                ctx.stroke();
-
-                // 1일부터 31일까지 격자 숫자 렌더링
-                ctx.font = 'bold 26px "Inter", sans-serif';
-                const colWidth = 512 / 7;
-                for (let day = 1; day <= 31; day++) {
-                    const col = (day - 1) % 7;
-                    const row = Math.floor((day - 1) / 7);
-                    const dx = col * colWidth + colWidth / 2;
-                    const dy = 208 + row * 82;
-
-                    // 특별한 날(예: 오늘 4일) 원형 하이라이트
-                    if (day === 4) {
-                        ctx.fillStyle = '#dcfce7';
-                        ctx.beginPath();
-                        ctx.arc(dx, dy, 26, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.strokeStyle = '#10b981';
-                        ctx.lineWidth = 3;
-                        ctx.stroke();
-                    }
-
-                    ctx.fillStyle = col === 0 ? '#ef4444' : (col === 6 ? '#2563eb' : '#0f172a');
-                    ctx.fillText(day.toString(), dx, dy);
-                }
-
                 const calTex = new THREE.CanvasTexture(calCanvas);
-                const calSheet = new THREE.Mesh(
-                    new THREE.PlaneGeometry(1.36, 1.7),
-                    new THREE.MeshStandardMaterial({ map: calTex, roughness: 0.6 })
-                );
+                const calSheet = new THREE.Mesh(new THREE.PlaneGeometry(1.36, 1.7), new THREE.MeshStandardMaterial({ map: calTex, roughness: 0.6 }));
                 calSheet.position.set(0, -0.03, 0.045);
                 calSheet.userData.isCalendar = true;
                 group.add(calSheet);
             } else {
-                // 기본 큐브
                 const cube = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), mat);
                 cube.position.y = 0.6;
                 group.add(cube);
@@ -2310,7 +2167,7 @@
             return group;
         }
 
-        /* ======================== 카메라 궤도 계산 ======================== */
+        /* ======================== 카메라 ======================== */
         function updateCameraOrbit() {
             if (isInsideRoom || outdoorCameraMode === 'walk') return;
 
@@ -2327,7 +2184,7 @@
             camera.lookAt(0, 2, 0);
         }
 
-        /* ======================== 포인터 & 터치 상호작용 ======================== */
+        /* ======================== 인터랙션 ======================== */
         function setupPointerInteractions() {
             const canvas = renderer.domElement;
 
@@ -2335,17 +2192,13 @@
                 if (e.target.closest('#joystick-zone')) return;
                 prevMousePos = { x: e.clientX, y: e.clientY };
 
-                // 화면 터치/클릭 시 인트로 애니메이션이 자연스럽게 즉시 종료되고 조작으로 전환
-                if (isIntroAnimating) {
-                    isIntroAnimating = false;
-                }
+                if (isIntroAnimating) isIntroAnimating = false;
 
                 mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
 
                 if (isInsideRoom) {
-                    // [배치 대기 모드 중인 경우]: 클릭한 위치에 가구 영구 안착
                     if (isPlacingNewFurniture && pendingFurnitureData && currentBuilding) {
                         if (raycaster.ray.intersectPlane(dragPlane, dragIntersection)) {
                             const isWallItem = isWallMountedType(pendingFurnitureData.type);
@@ -2362,8 +2215,8 @@
                             const targetF = pendingFurnitureData;
                             cancelFurniturePlacement();
                             rebuildIndoorRoom();
+                            saveVillageDataToStorage(false);
 
-                            // 배치된 새 가구 즉시 선택 및 HUD 활성화
                             setTimeout(() => {
                                 const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === targetF);
                                 if (newMesh) selectFurniture(targetF, newMesh);
@@ -2376,7 +2229,18 @@
                     if (intersects.length > 0) {
                         let hitObj = intersects[0].object;
 
-                        // 3D 방 연결문(Doorway) 클릭 감지
+                        // 전체 방 보기에서 상단 방 명판 클릭 감지 -> 해당 방으로 줌인 복귀
+                        let titleCandidate = hitObj;
+                        while (titleCandidate && titleCandidate !== indoorGroup) {
+                            if (titleCandidate.userData && titleCandidate.userData.isOverviewRoomTitle) {
+                                switchRoom(titleCandidate.userData.targetRoomIndex);
+                                toggleAllRoomsView();
+                                return;
+                            }
+                            titleCandidate = titleCandidate.parent;
+                        }
+
+                        // 문 클릭
                         let doorCandidate = hitObj;
                         while (doorCandidate && doorCandidate !== indoorGroup) {
                             if (doorCandidate.userData && doorCandidate.userData.isRoomDoor) {
@@ -2390,7 +2254,7 @@
                             doorCandidate = doorCandidate.parent;
                         }
 
-                        // 달력 클릭 감지: 클릭 시 실제 인터랙티브 캘린더 모달창 오픈
+                        // 달력 클릭
                         let calCandidate = hitObj;
                         while (calCandidate && calCandidate !== indoorGroup) {
                             if (calCandidate.userData && (calCandidate.userData.isCalendar || (calCandidate.userData.furnitureData && calCandidate.userData.furnitureData.type === 'calendar_board'))) {
@@ -2401,7 +2265,7 @@
                             calCandidate = calCandidate.parent;
                         }
 
-                        // 체크리스트 보드 클릭 감지: 클릭 시 체크리스트 모달창 오픈
+                        // 체크리스트 클릭
                         let chkCandidate = hitObj;
                         while (chkCandidate && chkCandidate !== indoorGroup) {
                             if (chkCandidate.userData && (chkCandidate.userData.isChecklist || (chkCandidate.userData.furnitureData && chkCandidate.userData.furnitureData.type === 'checklist_board'))) {
@@ -2412,7 +2276,7 @@
                             chkCandidate = chkCandidate.parent;
                         }
 
-                        // 메모장 보드 클릭 감지: 클릭 시 메모 작성 모달 오픈
+                        // 메모장 클릭
                         let memoCandidate = hitObj;
                         while (memoCandidate && memoCandidate !== indoorGroup) {
                             if (memoCandidate.userData && (memoCandidate.userData.isMemo || (memoCandidate.userData.furnitureData && memoCandidate.userData.furnitureData.type === 'memo_board'))) {
@@ -2423,7 +2287,7 @@
                             memoCandidate = memoCandidate.parent;
                         }
 
-                        // 가구 선택 및 드래그 시작 (책 클릭 시에도 소속 책장 선택)
+                        // 가구 선택
                         while (hitObj && !hitObj.userData.isFurniture && hitObj.parent !== indoorGroup) {
                             hitObj = hitObj.parent;
                         }
@@ -2442,15 +2306,12 @@
                         }
                     }
                     deselectFurniture();
-                    // 빈 바닥이나 공간 클릭 시 실내 3D 둘러보기 드래그 시작
                     isRoomOrbiting = true;
                 } else {
-                    // 야외
                     const intersects = raycaster.intersectObjects(outdoorGroup.children, true);
                     if (intersects.length > 0) {
                         let hit = intersects[0].object;
-                        
-                        // 나무 클릭 (벌목)
+
                         let tObj = hit;
                         while (tObj && !tObj.userData.isTree && tObj.parent !== outdoorGroup) {
                             tObj = tObj.parent;
@@ -2460,7 +2321,6 @@
                             return;
                         }
 
-                        // 건물 클릭 및 드래그 / 더블 클릭 감지
                         let bObj = hit;
                         while (bObj && !bObj.userData.isBuilding && bObj.parent !== outdoorGroup) {
                             bObj = bObj.parent;
@@ -2478,7 +2338,6 @@
                                 lastBuildingClickTime = now;
                             }
 
-                            // E K 연구소 제외, 일반 주택은 드래그로 위치 이동 가능
                             if (bId !== 'lab-center') {
                                 isDraggingBuilding = true;
                                 draggedBuildingObj = bObj;
@@ -2486,9 +2345,7 @@
                             return;
                         }
                     }
-                    if (outdoorCameraMode === 'free') {
-                        isOrbiting = true;
-                    }
+                    if (outdoorCameraMode === 'free') isOrbiting = true;
                 }
             });
 
@@ -2497,7 +2354,6 @@
                 const dy = e.clientY - prevMousePos.y;
                 prevMousePos = { x: e.clientX, y: e.clientY };
 
-                // [실내 신규 가구 배치 모드]: 고스트 프리뷰 메시가 마우스/터치를 실시간 추적
                 if (isInsideRoom && isPlacingNewFurniture && ghostPreviewMesh) {
                     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -2512,17 +2368,19 @@
                     return;
                 }
 
-                // [실내] 빈 공간 드래그 시 3D 360도 자유 회전
+                // 실내 360도 3D 둘러보기 (전체 방 보기 모드에서도 자유 회전 지원)
                 if (isInsideRoom && isRoomOrbiting && !isDraggingFurniture) {
-                    if (roomCamMode !== 'orbit') {
-                        setRoomCamMode('orbit');
+                    if (isAllRoomsMode) {
+                        roomOrbitAngles.theta -= dx * 0.007;
+                        roomOrbitAngles.phi = Math.max(0.2, Math.min(Math.PI / 2.05, roomOrbitAngles.phi - dy * 0.007));
+                    } else {
+                        if (roomCamMode !== 'orbit') setRoomCamMode('orbit');
+                        roomOrbitAngles.theta -= dx * 0.007;
+                        roomOrbitAngles.phi = Math.max(0.18, Math.min(Math.PI / 2.05, roomOrbitAngles.phi - dy * 0.007));
                     }
-                    roomOrbitAngles.theta -= dx * 0.007;
-                    roomOrbitAngles.phi = Math.max(0.18, Math.min(Math.PI / 2.05, roomOrbitAngles.phi - dy * 0.007));
                     return;
                 }
 
-                // 실내 가구 드래그 이동 처리 (바닥 및 벽면 스냅 연동)
                 if (isInsideRoom && isDraggingFurniture && draggedFurnitureObj) {
                     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -2534,12 +2392,8 @@
                         const nx = Math.max(-7.4, Math.min(7.4, dragIntersection.x + furnitureDragOffset.x));
                         let nz = dragIntersection.z + furnitureDragOffset.z;
 
-                        // 벽걸이 소품은 뒷벽(-7.6)에 자동으로 밀착 스냅
-                        if (isWallItem) {
-                            nz = -7.6;
-                        } else {
-                            nz = Math.max(-6.4, Math.min(6.4, nz));
-                        }
+                        if (isWallItem) nz = -7.6;
+                        else nz = Math.max(-6.4, Math.min(6.4, nz));
 
                         draggedFurnitureObj.position.x = nx;
                         draggedFurnitureObj.position.z = nz;
@@ -2562,7 +2416,7 @@
                         draggedBuildingObj.position.z = Math.sin(angle) * clampedDist;
                         draggedBuildingObj.userData.buildingData.x = draggedBuildingObj.position.x;
                         draggedBuildingObj.userData.buildingData.z = draggedBuildingObj.position.z;
-                        rebuildAllRoads(); // 집을 드래그하여 옮길 때 연결된 도로 실시간 연동
+                        rebuildAllRoads();
                     }
                     return;
                 }
@@ -2579,18 +2433,28 @@
                 isRoomOrbiting = false;
                 if (isDraggingBuilding) {
                     rebuildAllRoads();
+                    saveVillageDataToStorage(false);
                 }
                 isDraggingBuilding = false;
                 draggedBuildingObj = null;
+                if (isDraggingFurniture) {
+                    saveVillageDataToStorage(false);
+                }
                 isDraggingFurniture = false;
                 draggedFurnitureObj = null;
             });
 
-            // 마우스 휠 스크롤 줌인/줌아웃
             canvas.addEventListener('wheel', e => {
                 if (isInsideRoom) {
-                    if (roomCamMode !== 'orbit') setRoomCamMode('orbit');
-                    roomOrbitAngles.radius = Math.max(7, Math.min(32, roomOrbitAngles.radius + e.deltaY * 0.02));
+                    if (isAllRoomsMode && currentBuilding) {
+                        const rCount = currentBuilding.rooms.length;
+                        const minR = 15;
+                        const maxR = 40 + (rCount * 18);
+                        roomOrbitAngles.radius = Math.max(minR, Math.min(maxR, (roomOrbitAngles.radius || 30) + e.deltaY * 0.035));
+                    } else {
+                        if (roomCamMode !== 'orbit') setRoomCamMode('orbit');
+                        roomOrbitAngles.radius = Math.max(7, Math.min(32, roomOrbitAngles.radius + e.deltaY * 0.02));
+                    }
                 } else if (outdoorCameraMode === 'free') {
                     orbitAngles.radius = Math.max(16, Math.min(90, orbitAngles.radius + e.deltaY * 0.05));
                     updateCameraOrbit();
@@ -2598,7 +2462,7 @@
             }, { passive: true });
         }
 
-        /* ======================== 키보드 & 모바일 조이스틱 ======================== */
+        /* ======================== 키보드 & 조이스틱 ======================== */
         function setupJoystickAndKeys() {
             window.addEventListener('keydown', e => {
                 const k = e.key.toLowerCase();
@@ -2623,7 +2487,6 @@
                 if (k === 'd' || e.key === 'ArrowRight') moveKeys.d = false;
             });
 
-            // 모바일 조이스틱 고감도 터치 이벤트
             const zone = document.getElementById('joystick-zone');
             const knob = document.getElementById('joystick-knob');
             let isTouchJoy = false;
@@ -2678,15 +2541,13 @@
                 const angle = Math.atan2(dy, dx);
                 const kx = Math.cos(angle) * clamped;
                 const ky = Math.sin(angle) * clamped;
-
                 knob.style.transform = `translate(${kx}px, ${ky}px)`;
-                // 감도와 정밀도를 위해 정규화 벡터 전달
                 joyVec.x = kx / maxR;
                 joyVec.y = ky / maxR;
             }
         }
 
-        /* ======================== 가구 선택 및 HUD 컨트롤 ======================== */
+        /* ======================== 가구 HUD ======================== */
         function selectFurniture(fData, mesh) {
             selectedFurniture = fData;
             selectedFurnitureMesh = mesh;
@@ -2699,32 +2560,23 @@
             const defaultName = itemDef ? itemDef.name : '선택된 가구';
             document.getElementById('hud-furniture-name').innerText = fData.customName || defaultName;
 
-            // 책장 전용 옵션 표시
             const bsCtrl = document.getElementById('hud-bookshelf-controls');
             if (fData.type === 'bookshelf') {
                 bsCtrl.classList.remove('hidden');
                 bsCtrl.classList.add('flex');
-            } else {
-                bsCtrl.classList.add('hidden');
-            }
+            } else bsCtrl.classList.add('hidden');
 
-            // 체크리스트 보드 전용 옵션 표시
             const chkCtrl = document.getElementById('hud-checklist-controls');
             if (fData.type === 'checklist_board') {
                 chkCtrl.classList.remove('hidden');
                 chkCtrl.classList.add('flex');
-            } else {
-                chkCtrl.classList.add('hidden');
-            }
+            } else chkCtrl.classList.add('hidden');
 
-            // 메모장 전용 옵션 표시
             const memoCtrl = document.getElementById('hud-memo-controls');
             if (fData.type === 'memo_board') {
                 memoCtrl.classList.remove('hidden');
                 memoCtrl.classList.add('flex');
-            } else {
-                memoCtrl.classList.add('hidden');
-            }
+            } else memoCtrl.classList.add('hidden');
         }
 
         function deselectFurniture() {
@@ -2773,7 +2625,6 @@
         }
 
         function setupHUDControls() {
-            // 가구 이름 변경 모달 오픈
             const btnRename = document.getElementById('hud-btn-rename');
             if (btnRename) {
                 btnRename.onclick = () => {
@@ -2789,75 +2640,31 @@
                     const val = document.getElementById('input-furniture-name').value.trim();
                     if (val) {
                         targetF.customName = val;
-                        // HUD 이름 갱신
                         if (selectedFurniture === targetF) {
                             document.getElementById('hud-furniture-name').innerText = val;
                         }
-                        // 체크리스트 모달 타이틀 갱신
-                        if (targetF.type === 'checklist_board') {
-                            const chkTitleEl = document.getElementById('chk-modal-title');
-                            if (chkTitleEl) chkTitleEl.innerText = val;
-                        }
-                        // 메모장 모달 타이틀 갱신
-                        if (targetF.type === 'memo_board') {
-                            const memoTitleEl = document.getElementById('memo-modal-title');
-                            if (memoTitleEl) memoTitleEl.innerText = val;
-                        }
-                        // 달력 모달 서브타이틀 갱신
-                        if (targetF.type === 'calendar_board') {
-                            const calSubEl = document.getElementById('cal-modal-custom-title');
-                            if (calSubEl) calSubEl.innerText = val;
-                        }
                         rebuildIndoorRoom();
+                        saveVillageDataToStorage(false);
                     }
                     closeModal('modal-edit-furniture-name');
                     editingFurnitureTarget = null;
                 };
             }
 
-            const inputFurnName = document.getElementById('input-furniture-name');
-            if (inputFurnName) {
-                inputFurnName.onkeydown = e => {
-                    if (e.key === 'Enter') btnSaveFurnName.click();
-                };
-            }
-
-            // 체크리스트 & 달력 & 메모장 모달 헤더의 [✏️] 버튼 이벤트 연동
-            const btnEditChk = document.getElementById('btn-edit-chk-name');
-            if (btnEditChk) {
-                btnEditChk.onclick = () => {
-                    if (activeChecklistFurniture) openEditFurnitureNameModal(activeChecklistFurniture);
-                };
-            }
-
-            const btnEditMemo = document.getElementById('btn-edit-memo-name');
-            if (btnEditMemo) {
-                btnEditMemo.onclick = () => {
-                    if (activeMemoFurniture) openEditFurnitureNameModal(activeMemoFurniture);
-                };
-            }
-
-            const btnEditCal = document.getElementById('btn-edit-cal-name');
-            if (btnEditCal) {
-                btnEditCal.onclick = () => {
-                    if (activeCalendarFurniture) openEditFurnitureNameModal(activeCalendarFurniture);
-                };
-            }
-
-            // 45도 회전
             document.getElementById('hud-btn-rotate').onclick = () => {
                 if (!selectedFurniture) return;
                 selectedFurniture.rot = (selectedFurniture.rot || 0) + Math.PI / 4;
                 rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
                 const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === selectedFurniture);
                 if (newMesh) selectFurniture(selectedFurniture, newMesh);
             };
 
-            // D-Pad 미세 위치 조절 버튼들 (0.35m 단위)
             document.getElementById('hud-btn-move-left').onclick = () => {
                 if (!selectedFurniture) return;
                 selectedFurniture.x = Math.max(-7.4, (selectedFurniture.x || 0) - 0.35);
                 rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
                 const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === selectedFurniture);
                 if (newMesh) selectFurniture(selectedFurniture, newMesh);
             };
@@ -2866,6 +2673,7 @@
                 if (!selectedFurniture) return;
                 selectedFurniture.x = Math.min(7.4, (selectedFurniture.x || 0) + 0.35);
                 rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
                 const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === selectedFurniture);
                 if (newMesh) selectFurniture(selectedFurniture, newMesh);
             };
@@ -2875,6 +2683,7 @@
                 const minZ = isWallMountedType(selectedFurniture.type) ? -7.6 : -6.4;
                 selectedFurniture.z = Math.max(minZ, (selectedFurniture.z || 0) - 0.35);
                 rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
                 const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === selectedFurniture);
                 if (newMesh) selectFurniture(selectedFurniture, newMesh);
             };
@@ -2883,15 +2692,16 @@
                 if (!selectedFurniture) return;
                 selectedFurniture.z = Math.min(6.4, (selectedFurniture.z || 0) + 0.35);
                 rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
                 const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === selectedFurniture);
                 if (newMesh) selectFurniture(selectedFurniture, newMesh);
             };
 
-            // 높이 조절 (0.25m 단위)
             document.getElementById('hud-btn-height-up').onclick = () => {
                 if (!selectedFurniture) return;
                 selectedFurniture.y = Math.min(5.2, (selectedFurniture.y || 0) + 0.25);
                 rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
                 const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === selectedFurniture);
                 if (newMesh) selectFurniture(selectedFurniture, newMesh);
             };
@@ -2900,6 +2710,7 @@
                 if (!selectedFurniture) return;
                 selectedFurniture.y = Math.max(0, (selectedFurniture.y || 0) - 0.25);
                 rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
                 const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === selectedFurniture);
                 if (newMesh) selectFurniture(selectedFurniture, newMesh);
             };
@@ -2910,26 +2721,23 @@
                 room.furnitures = room.furnitures.filter(f => f !== selectedFurniture);
                 deselectFurniture();
                 rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
             };
 
             document.getElementById('hud-btn-open-bookshelf').onclick = () => {
-                if (!selectedFurniture || selectedFurniture.type !== 'bookshelf') return;
-                openBookshelfModal(selectedFurniture);
+                if (selectedFurniture && selectedFurniture.type === 'bookshelf') openBookshelfModal(selectedFurniture);
             };
 
             document.getElementById('hud-btn-open-checklist').onclick = () => {
-                if (!selectedFurniture || selectedFurniture.type !== 'checklist_board') return;
-                openChecklistModal(selectedFurniture);
+                if (selectedFurniture && selectedFurniture.type === 'checklist_board') openChecklistModal(selectedFurniture);
             };
 
             document.getElementById('hud-btn-open-memo').onclick = () => {
-                if (!selectedFurniture || selectedFurniture.type !== 'memo_board') return;
-                openMemoModal(selectedFurniture);
+                if (selectedFurniture && selectedFurniture.type === 'memo_board') openMemoModal(selectedFurniture);
             };
 
             document.getElementById('btn-cancel-placement').onclick = cancelFurniturePlacement;
 
-            // 팔레트 칩 렌더링 (슬림형)
             const palContainer = document.getElementById('hud-color-palette');
             palContainer.innerHTML = '';
             PALETTE_COLORS.forEach(col => {
@@ -2940,12 +2748,33 @@
                     if (!selectedFurniture) return;
                     selectedFurniture.color = col;
                     rebuildIndoorRoom();
+                    saveVillageDataToStorage(false);
                 };
                 palContainer.appendChild(dot);
             });
         }
 
-        /* ======================== 책장 모달 도서 관리 ======================== */
+        function setupSaveManagerUI() {
+            const openModal = () => document.getElementById('modal-save-manager').classList.remove('hidden');
+            const btnOutdoor = document.getElementById('btn-open-save-mgr-outdoor');
+            const btnIndoor = document.getElementById('btn-open-save-mgr-indoor');
+            if (btnOutdoor) btnOutdoor.onclick = openModal;
+            if (btnIndoor) btnIndoor.onclick = openModal;
+
+            document.getElementById('btn-action-quick-save').onclick = () => saveVillageDataToStorage(true);
+            document.getElementById('btn-action-export-json').onclick = exportVillageDataToFile;
+
+            const fileInp = document.getElementById('input-restore-json-file');
+            document.getElementById('btn-action-import-json').onclick = () => fileInp.click();
+            fileInp.onchange = e => {
+                if (e.target.files && e.target.files[0]) {
+                    importVillageDataFromFile(e.target.files[0]);
+                    fileInp.value = '';
+                }
+            };
+        }
+
+        /* ======================== 책장 모달 ======================== */
         function openBookshelfModal(shelfData) {
             document.getElementById('modal-bookshelf-manager').classList.remove('hidden');
             renderBookshelfList(shelfData);
@@ -2959,8 +2788,7 @@
                 input.value = '';
                 renderBookshelfList(shelfData);
                 rebuildIndoorRoom();
-                const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === shelfData);
-                if (newMesh) selectFurniture(shelfData, newMesh);
+                saveVillageDataToStorage(false);
             };
         }
 
@@ -2978,10 +2806,10 @@
 
             books.forEach((bTitle, idx) => {
                 const item = document.createElement('div');
-                item.className = 'flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-white/10 hover:border-amber-400/40 transition-colors';
+                item.className = 'flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-white/10';
                 item.innerHTML = `
                     <span class="truncate max-w-[230px] font-medium text-amber-200">📘 ${bTitle}</span>
-                    <button class="bg-rose-600 hover:bg-rose-500 px-2.5 py-0.5 rounded text-[11px] font-bold text-white btn-press flex items-center gap-0.5 shadow-sm" onclick="removeBookFromShelf(${idx})" title="책장에서 꺼내기">
+                    <button class="bg-rose-600 hover:bg-rose-500 px-2.5 py-0.5 rounded text-[11px] font-bold text-white btn-press flex items-center gap-0.5 shadow-sm" onclick="removeBookFromShelf(${idx})">
                         <span>📤</span> 꺼내기
                     </button>
                 `;
@@ -2994,49 +2822,37 @@
             selectedFurniture.books.splice(idx, 1);
             renderBookshelfList(selectedFurniture);
             rebuildIndoorRoom();
-            const newMesh = indoorGroup.children.find(c => c.userData.furnitureData === selectedFurniture);
-            if (newMesh) selectFurniture(selectedFurniture, newMesh);
+            saveVillageDataToStorage(false);
         };
 
-        /* ======================== 현장 작업 체크리스트 모달 ======================== */
+        /* ======================== 체크리스트 모달 ======================== */
         let activeChecklistFurniture = null;
 
         function openChecklistModal(furnitureData) {
-            if (!furnitureData) {
-                // 선택된 가구가 없으면 현재 방 안의 첫 번째 체크리스트 보드 탐색
-                if (currentBuilding && currentBuilding.rooms[currentRoomIndex]) {
-                    furnitureData = currentBuilding.rooms[currentRoomIndex].furnitures.find(f => f.type === 'checklist_board');
-                }
+            if (!furnitureData && currentBuilding && currentBuilding.rooms[currentRoomIndex]) {
+                furnitureData = currentBuilding.rooms[currentRoomIndex].furnitures.find(f => f.type === 'checklist_board');
             }
             if (!furnitureData) return;
-
             activeChecklistFurniture = furnitureData;
             if (!activeChecklistFurniture.checklist) activeChecklistFurniture.checklist = [];
 
-            // 모달 타이틀을 가구 커스텀 이름으로 동기화
             const chkTitleEl = document.getElementById('chk-modal-title');
-            if (chkTitleEl) {
-                chkTitleEl.innerText = activeChecklistFurniture.customName || '현장 작업 체크리스트';
-            }
+            if (chkTitleEl) chkTitleEl.innerText = activeChecklistFurniture.customName || '현장 작업 체크리스트';
 
             document.getElementById('modal-checklist-view').classList.remove('hidden');
             renderChecklistItems();
 
-            // 신규 항목 입력 바인딩
             const input = document.getElementById('input-new-checklist-task');
             const btnAdd = document.getElementById('btn-add-checklist-task');
 
             const handleAdd = () => {
                 const text = input.value.trim();
                 if (!text || !activeChecklistFurniture) return;
-                activeChecklistFurniture.checklist.push({
-                    id: 'chk-' + Date.now(),
-                    text,
-                    done: false
-                });
+                activeChecklistFurniture.checklist.push({ id: 'chk-' + Date.now(), text, done: false });
                 input.value = '';
                 renderChecklistItems();
                 rebuildIndoorRoom();
+                saveVillageDataToStorage(false);
             };
 
             btnAdd.onclick = handleAdd;
@@ -3050,7 +2866,6 @@
             const prgText = document.getElementById('chk-progress-text');
             const prgBar = document.getElementById('chk-progress-bar');
 
-            // 진행률 업데이트
             const total = items.length;
             const completed = items.filter(i => i.done).length;
             const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
@@ -3060,24 +2875,21 @@
 
             container.innerHTML = '';
             if (items.length === 0) {
-                container.innerHTML = '<div class="text-slate-500 py-6 text-center">등록된 점검 항목이 없습니다. 위 입력창으로 새 항목을 추가해보세요!</div>';
+                container.innerHTML = '<div class="text-slate-500 py-6 text-center">등록된 점검 항목이 없습니다.</div>';
                 return;
             }
 
             items.forEach((item, idx) => {
                 const row = document.createElement('div');
                 row.className = `flex items-center justify-between p-2 rounded-xl border transition-all ${
-                    item.done 
-                        ? 'bg-slate-900/60 border-emerald-500/30 text-slate-400' 
-                        : 'bg-slate-900/90 border-white/10 text-white hover:border-sky-400/40'
+                    item.done ? 'bg-slate-900/60 border-emerald-500/30 text-slate-400' : 'bg-slate-900/90 border-white/10 text-white'
                 }`;
-
                 row.innerHTML = `
                     <label class="flex items-center gap-2.5 flex-1 cursor-pointer min-w-0">
-                        <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem(${idx})" class="w-4 h-4 rounded text-sky-500 bg-slate-950 border-slate-700 focus:ring-0 cursor-pointer">
+                        <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem(${idx})" class="w-4 h-4 rounded text-sky-500 bg-slate-950 border-slate-700 cursor-pointer">
                         <span class="truncate ${item.done ? 'line-through text-slate-400' : 'font-medium'}">${item.text}</span>
                     </label>
-                    <button onclick="deleteChecklistItem(${idx})" class="text-slate-400 hover:text-rose-400 p-1 rounded-lg text-xs transition-colors btn-press ml-2 flex-shrink-0" title="항목 삭제">🗑️</button>
+                    <button onclick="deleteChecklistItem(${idx})" class="text-slate-400 hover:text-rose-400 p-1 rounded-lg text-xs btn-press ml-2">🗑️</button>
                 `;
                 container.appendChild(row);
             });
@@ -3088,6 +2900,7 @@
             activeChecklistFurniture.checklist[idx].done = !activeChecklistFurniture.checklist[idx].done;
             renderChecklistItems();
             rebuildIndoorRoom();
+            saveVillageDataToStorage(false);
         };
 
         window.deleteChecklistItem = function(idx) {
@@ -3095,28 +2908,22 @@
             activeChecklistFurniture.checklist.splice(idx, 1);
             renderChecklistItems();
             rebuildIndoorRoom();
+            saveVillageDataToStorage(false);
         };
 
-        /* ======================== 현장 알림 메모장 모달 ======================== */
+        /* ======================== 메모장 모달 ======================== */
         let activeMemoFurniture = null;
 
         function openMemoModal(furnitureData) {
-            if (!furnitureData) {
-                if (currentBuilding && currentBuilding.rooms[currentRoomIndex]) {
-                    furnitureData = currentBuilding.rooms[currentRoomIndex].furnitures.find(f => f.type === 'memo_board');
-                }
+            if (!furnitureData && currentBuilding && currentBuilding.rooms[currentRoomIndex]) {
+                furnitureData = currentBuilding.rooms[currentRoomIndex].furnitures.find(f => f.type === 'memo_board');
             }
             if (!furnitureData) return;
-
             activeMemoFurniture = furnitureData;
-            if (activeMemoFurniture.memoContent === undefined) {
-                activeMemoFurniture.memoContent = '';
-            }
+            if (activeMemoFurniture.memoContent === undefined) activeMemoFurniture.memoContent = '';
 
             const memoTitleEl = document.getElementById('memo-modal-title');
-            if (memoTitleEl) {
-                memoTitleEl.innerText = activeMemoFurniture.customName || '현장 알림 메모장';
-            }
+            if (memoTitleEl) memoTitleEl.innerText = activeMemoFurniture.customName || '현장 알림 메모장';
 
             const textarea = document.getElementById('textarea-memo-content');
             textarea.value = activeMemoFurniture.memoContent;
@@ -3131,35 +2938,24 @@
                 if (!activeMemoFurniture) return;
                 activeMemoFurniture.memoContent = textarea.value;
                 rebuildIndoorRoom();
-                const saveBtn = document.getElementById('btn-save-memo');
-                const orig = saveBtn.innerHTML;
-                saveBtn.innerHTML = '<span>✅</span><span>저장됨!</span>';
-                saveBtn.classList.replace('bg-amber-600', 'bg-emerald-600');
-                setTimeout(() => {
-                    saveBtn.innerHTML = orig;
-                    saveBtn.classList.replace('bg-emerald-600', 'bg-amber-600');
-                    closeModal('modal-memo-view');
-                }, 450);
+                saveVillageDataToStorage(false);
+                closeModal('modal-memo-view');
             };
         }
 
         function updateMemoCharCount() {
             const textarea = document.getElementById('textarea-memo-content');
             const countEl = document.getElementById('memo-char-count');
-            if (textarea && countEl) {
-                countEl.innerText = `${textarea.value.length}자`;
-            }
+            if (textarea && countEl) countEl.innerText = `${textarea.value.length}자`;
         }
 
-        /* ======================== 실제 인터랙티브 달력 모달 ======================== */
+        /* ======================== 실제 캘린더 모달 ======================== */
         let calCurrentYear = 2026;
-        let calCurrentMonth = 10; // 0-indexed (10 = 11월)
+        let calCurrentMonth = 10;
         let calSelectedDate = { year: 2026, month: 10, day: 4 };
-        let currentAttachedPhotos = []; // 첨부 사진 base64 다중 배열 (무제한)
-        let calSelectedCompanyFilter = 'ALL'; // 업체별 필터 ('ALL', 'DATE_ONLY', 또는 특정 업체명)
+        let currentAttachedPhotos = [];
+        let calSelectedCompanyFilter = 'ALL';
         let activeCalendarFurniture = null;
-
-        // 날짜별 일정 데이터 저장소 (기존 샘플 일정 모두 초기화)
         const islandSchedules = {};
 
         function openInteractiveCalendar(furnitureData) {
@@ -3168,13 +2964,8 @@
             }
             activeCalendarFurniture = furnitureData;
 
-            // 모달 서브타이틀을 가구 커스텀 이름으로 동기화
             const calSubEl = document.getElementById('cal-modal-custom-title');
-            if (calSubEl) {
-                calSubEl.innerText = (activeCalendarFurniture && activeCalendarFurniture.customName) 
-                    ? activeCalendarFurniture.customName 
-                    : '초록 섬마을 현장 작업 캘린더';
-            }
+            if (calSubEl) calSubEl.innerText = (activeCalendarFurniture && activeCalendarFurniture.customName) ? activeCalendarFurniture.customName : '초록 섬마을 현장 작업 캘린더';
 
             const today = new Date();
             calCurrentYear = today.getFullYear();
@@ -3188,17 +2979,7 @@
             document.getElementById('modal-calendar-view').classList.remove('hidden');
             renderInteractiveCalendar();
 
-            // 엑셀 다운로드 버튼 이벤트 연동
-            const btnExport = document.getElementById('btn-export-excel');
-            if (btnExport) btnExport.onclick = exportSchedulesToExcel;
-
-            // 엔터키 지원 및 사진 첨부 이벤트 바인딩
-            const compInput = document.getElementById('input-sched-company');
-            const taskInput = document.getElementById('input-sched-task');
-            const onEnter = e => { if (e.key === 'Enter') addScheduleItem(); };
-            compInput.onkeydown = onEnter;
-            taskInput.onkeydown = onEnter;
-
+            document.getElementById('btn-export-excel').onclick = exportSchedulesToExcel;
             document.getElementById('btn-add-schedule').onclick = addScheduleItem;
 
             const photoFile = document.getElementById('input-sched-photo');
@@ -3212,9 +2993,7 @@
                     reader.onload = ev => {
                         currentAttachedPhotos.push(ev.target.result);
                         loaded++;
-                        if (loaded === files.length) {
-                            updatePhotoPreviewUI();
-                        }
+                        if (loaded === files.length) updatePhotoPreviewUI();
                     };
                     reader.readAsDataURL(file);
                 });
@@ -3240,7 +3019,7 @@
                 box.className = 'relative w-11 h-11 rounded-lg border border-emerald-400 overflow-hidden bg-slate-800 flex-shrink-0';
                 box.innerHTML = `
                     <img src="${src}" alt="preview" class="w-full h-full object-cover">
-                    <button type="button" class="absolute top-0 right-0 bg-black/80 hover:bg-rose-600 text-white text-[10px] w-4 h-4 flex items-center justify-center leading-none rounded-bl" title="이 사진 삭제" onclick="removeAttachedPhoto(${idx})">&times;</button>
+                    <button type="button" class="absolute top-0 right-0 bg-black/80 hover:bg-rose-600 text-white text-[10px] w-4 h-4 flex items-center justify-center leading-none rounded-bl" onclick="removeAttachedPhoto(${idx})">&times;</button>
                 `;
                 listContainer.appendChild(box);
             });
@@ -3273,7 +3052,6 @@
                 photos: [...currentAttachedPhotos]
             });
 
-            // 입력 폼 초기화
             companyInput.value = '';
             taskInput.value = '';
             currentAttachedPhotos = [];
@@ -3281,6 +3059,7 @@
             updatePhotoPreviewUI();
 
             renderInteractiveCalendar();
+            saveVillageDataToStorage(false);
         }
 
         window.deleteScheduleItem = function(schedId) {
@@ -3288,13 +3067,12 @@
                 const idx = islandSchedules[key].findIndex(s => s.id === schedId || s === schedId);
                 if (idx !== -1) {
                     islandSchedules[key].splice(idx, 1);
-                    if (islandSchedules[key].length === 0) {
-                        delete islandSchedules[key];
-                    }
+                    if (islandSchedules[key].length === 0) delete islandSchedules[key];
                     break;
                 }
             }
             renderInteractiveCalendar();
+            saveVillageDataToStorage(false);
         };
 
         window.viewPhoto = function(src) {
@@ -3302,76 +3080,36 @@
             document.getElementById('modal-photo-viewer').classList.remove('hidden');
         };
 
-        /* ======================== 엑셀(CSV) 내보내기 ======================== */
         function exportSchedulesToExcel() {
-            const btn = document.getElementById('btn-export-excel');
             let items = [];
-
-            // 등록된 모든 일정 수집
             Object.keys(islandSchedules).forEach(k => {
                 (islandSchedules[k] || []).forEach(item => {
-                    const sObj = typeof item === 'string' 
-                        ? { company: '일반', task: item, photos: [], dateStr: k } 
-                        : { 
-                            company: item.company || '미지정 업체', 
-                            task: item.task || '', 
+                    const sObj = typeof item === 'string'
+                        ? { company: '일반', task: item, photos: [], dateStr: k }
+                        : {
+                            company: item.company || '미지정 업체',
+                            task: item.task || '',
                             photos: item.photos || (item.photo ? [item.photo] : []),
                             dateStr: `${item.year}-${String(item.month + 1).padStart(2, '0')}-${String(item.day).padStart(2, '0')}`
                         };
-                    
-                    if (calSelectedCompanyFilter === 'ALL') {
-                        items.push(sObj);
-                    } else if (calSelectedCompanyFilter === 'DATE_ONLY') {
-                        const selKey = `${calSelectedDate.year}-${String(calSelectedDate.month + 1).padStart(2, '0')}-${String(calSelectedDate.day).padStart(2, '0')}`;
-                        if (sObj.dateStr === selKey) items.push(sObj);
-                    } else if (sObj.company === calSelectedCompanyFilter) {
-                        items.push(sObj);
-                    }
+                    items.push(sObj);
                 });
             });
 
-            if (items.length === 0) {
-                if (btn) {
-                    const orig = btn.innerHTML;
-                    btn.innerHTML = '<span>⚠️</span><span>데이터 없음</span>';
-                    setTimeout(() => { btn.innerHTML = orig; }, 1500);
-                }
-                return;
-            }
+            if (items.length === 0) return;
 
-            // 업체명 가나다순, 동일 업체 내 날짜 오름차순 정렬
-            items.sort((a, b) => {
-                if (a.company !== b.company) return a.company.localeCompare(b.company);
-                return a.dateStr.localeCompare(b.dateStr);
-            });
-
-            // 엑셀 표 헤더 구성
-            const csvRows = [
-                ['연번', '업체명', '작업일자', '작업내용', '첨부사진수']
-            ];
-
+            items.sort((a, b) => a.company.localeCompare(b.company) || a.dateStr.localeCompare(b.dateStr));
+            const csvRows = [['연번', '업체명', '작업일자', '작업내용', '첨부사진수']];
             items.forEach((item, idx) => {
-                csvRows.push([
-                    idx + 1,
-                    `"${(item.company || '').replace(/"/g, '""')}"`,
-                    `"${item.dateStr}"`,
-                    `"${(item.task || '').replace(/"/g, '""')}"`,
-                    `${item.photos ? item.photos.length : 0}장`
-                ]);
+                csvRows.push([idx + 1, `"${item.company}"`, `"${item.dateStr}"`, `"${item.task}"`, `${item.photos ? item.photos.length : 0}장`]);
             });
 
-            // 한글 깨짐 방지 UTF-8 BOM (\uFEFF) 적용 CSV 생성
             const csvString = '\uFEFF' + csvRows.map(row => row.join(',')).join('\r\n');
             const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-
-            const today = new Date();
-            const dateTag = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
-            const compTag = (calSelectedCompanyFilter === 'ALL' || calSelectedCompanyFilter === 'DATE_ONLY') ? '전체업체' : calSelectedCompanyFilter;
-            
             a.href = url;
-            a.download = `초록섬마을_작업일지_${compTag}_${dateTag}.csv`;
+            a.download = `초록섬마을_작업일지.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -3396,62 +3134,26 @@
 
             const companies = getUniqueCompanies();
 
-            // 1. '전체 업체 보기' 칩
             const allChip = document.createElement('button');
             allChip.type = 'button';
-            const isAllSelected = calSelectedCompanyFilter === 'ALL';
-            allChip.className = `px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all flex-shrink-0 ${
-                isAllSelected 
-                    ? 'bg-emerald-600 text-white ring-1 ring-emerald-300' 
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-            }`;
-            allChip.innerText = '🌐 전체 업체 보기';
-            allChip.onclick = () => {
-                calSelectedCompanyFilter = 'ALL';
-                renderInteractiveCalendar();
-            };
+            allChip.className = `px-2 py-0.5 rounded-lg text-[10px] font-bold ${calSelectedCompanyFilter === 'ALL' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-300'}`;
+            allChip.innerText = '🌐 전체 보기';
+            allChip.onclick = () => { calSelectedCompanyFilter = 'ALL'; renderInteractiveCalendar(); };
             container.appendChild(allChip);
 
-            // 2. '선택 날짜만' 칩
-            const dateChip = document.createElement('button');
-            dateChip.type = 'button';
-            const isDateSelected = calSelectedCompanyFilter === 'DATE_ONLY';
-            dateChip.className = `px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all flex-shrink-0 ${
-                isDateSelected 
-                    ? 'bg-teal-600 text-white ring-1 ring-teal-300' 
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-            }`;
-            dateChip.innerText = `📅 ${calSelectedDate.month + 1}월 ${calSelectedDate.day}일만`;
-            dateChip.onclick = () => {
-                calSelectedCompanyFilter = 'DATE_ONLY';
-                renderInteractiveCalendar();
-            };
-            container.appendChild(dateChip);
-
-            // 3. 각 업체별 칩
             companies.forEach(comp => {
-                const isSelected = calSelectedCompanyFilter === comp;
                 const chip = document.createElement('button');
                 chip.type = 'button';
-                chip.className = `px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all flex-shrink-0 ${
-                    isSelected 
-                        ? 'bg-amber-600 text-white ring-1 ring-amber-300' 
-                        : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700'
-                }`;
+                chip.className = `px-2 py-0.5 rounded-lg text-[10px] font-bold ${calSelectedCompanyFilter === comp ? 'bg-amber-600 text-white' : 'bg-slate-800 text-slate-300'}`;
                 chip.innerText = `🏢 ${comp}`;
-                chip.onclick = () => {
-                    calSelectedCompanyFilter = comp;
-                    renderInteractiveCalendar();
-                };
+                chip.onclick = () => { calSelectedCompanyFilter = comp; renderInteractiveCalendar(); };
                 container.appendChild(chip);
             });
         }
 
         function renderInteractiveCalendar() {
             renderCompanyFilterChips();
-
-            const titleEl = document.getElementById('cal-modal-month-title');
-            titleEl.innerText = `${calCurrentYear}년 ${calCurrentMonth + 1}월`;
+            document.getElementById('cal-modal-month-title').innerText = `${calCurrentYear}년 ${calCurrentMonth + 1}월`;
 
             const grid = document.getElementById('calendar-days-grid');
             grid.innerHTML = '';
@@ -3459,11 +3161,9 @@
             const firstDayIndex = new Date(calCurrentYear, calCurrentMonth, 1).getDay();
             const lastDate = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
             const prevLastDate = new Date(calCurrentYear, calCurrentMonth, 0).getDate();
-
             const realToday = new Date();
             const isThisMonth = realToday.getFullYear() === calCurrentYear && realToday.getMonth() === calCurrentMonth;
 
-            // 이전 달 여백 날짜
             for (let i = firstDayIndex - 1; i >= 0; i--) {
                 const cell = document.createElement('div');
                 cell.className = 'py-1.5 rounded-lg text-slate-600 flex flex-col items-center justify-center min-h-[38px]';
@@ -3471,47 +3171,27 @@
                 grid.appendChild(cell);
             }
 
-            // 이번 달 날짜
             for (let day = 1; day <= lastDate; day++) {
                 const cell = document.createElement('div');
                 const isToday = isThisMonth && realToday.getDate() === day;
                 const isSelected = calSelectedDate.year === calCurrentYear && calSelectedDate.month === calCurrentMonth && calSelectedDate.day === day;
                 const dateKey = `${calCurrentYear}-${calCurrentMonth}-${day}`;
                 const rawSchedules = islandSchedules[dateKey] || [];
-                
-                // 선택된 업체 필터가 적용된 상태인지 확인
-                const hasSchedules = rawSchedules.some(s => {
-                    if (calSelectedCompanyFilter === 'ALL' || calSelectedCompanyFilter === 'DATE_ONLY') return true;
-                    const comp = typeof s === 'string' ? '일반' : (s.company || '미지정 업체');
-                    return comp === calSelectedCompanyFilter;
-                });
+                const hasSchedules = rawSchedules.length > 0;
 
                 const dayOfWeek = (firstDayIndex + day - 1) % 7;
                 let colorClass = 'text-white hover:bg-slate-800';
-                if (dayOfWeek === 0) colorClass = 'text-rose-400 hover:bg-rose-950/40';
-                if (dayOfWeek === 6) colorClass = 'text-blue-400 hover:bg-blue-950/40';
+                if (dayOfWeek === 0) colorClass = 'text-rose-400';
+                if (dayOfWeek === 6) colorClass = 'text-blue-400';
 
-                let bgClass = '';
-                if (isSelected) {
-                    bgClass = 'bg-emerald-600 text-white font-bold ring-2 ring-emerald-300 shadow-md';
-                } else if (isToday) {
-                    bgClass = 'border border-emerald-400 text-emerald-300 font-bold';
-                }
+                let bgClass = isSelected ? 'bg-emerald-600 text-white font-bold ring-2 ring-emerald-300' : (isToday ? 'border border-emerald-400 text-emerald-300 font-bold' : '');
 
                 cell.className = `py-1.5 rounded-lg cursor-pointer transition-all btn-press flex flex-col items-center justify-center min-h-[38px] relative ${colorClass} ${bgClass}`;
-                
-                // 날짜 숫자 및 일정 존재 표시 점(Dot)
-                const dotColor = isSelected ? 'bg-amber-300' : (calSelectedCompanyFilter !== 'ALL' && calSelectedCompanyFilter !== 'DATE_ONLY' ? 'bg-amber-400 ring-1 ring-amber-200' : 'bg-emerald-400');
-                const dotHtml = (hasSchedules && rawSchedules.length > 0)
-                    ? `<span class="w-1.5 h-1.5 rounded-full ${dotColor} mt-0.5"></span>` 
-                    : `<span class="w-1.5 h-1.5 mt-0.5"></span>`;
-                cell.innerHTML = `<span>${day}</span>${dotHtml}`;
-
+                cell.innerHTML = `<span>${day}</span>${hasSchedules ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-0.5"></span>' : '<span class="w-1.5 h-1.5 mt-0.5"></span>'}`;
                 cell.onclick = () => {
                     calSelectedDate = { year: calCurrentYear, month: calCurrentMonth, day };
                     renderInteractiveCalendar();
                 };
-
                 grid.appendChild(cell);
             }
 
@@ -3519,150 +3199,55 @@
         }
 
         function updateCalendarScheduleUI(year, month, day) {
-            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-            const targetDate = new Date(year, month, day);
-            const dayName = dayNames[targetDate.getDay()];
-
             const memoDateEl = document.getElementById('cal-memo-date-text');
-            const todayBadge = document.getElementById('cal-memo-today-badge');
             const listEl = document.getElementById('cal-schedule-list');
+            memoDateEl.innerText = `${month + 1}월 ${day}일 작업 내역`;
 
-            const realToday = new Date();
-            const isToday = realToday.getFullYear() === year && realToday.getMonth() === month && realToday.getDate() === day;
-
-            if (calSelectedCompanyFilter === 'ALL') {
-                memoDateEl.innerHTML = `<span class="text-emerald-300">🌐 전체 업체 작업 모아보기</span> <span class="text-[10px] text-slate-400 font-normal ml-1">(등록 대상: ${month + 1}월 ${day}일)</span>`;
-            } else if (calSelectedCompanyFilter === 'DATE_ONLY') {
-                memoDateEl.innerText = `📅 ${month + 1}월 ${day}일 (${dayName}) 단독 보기`;
-            } else {
-                memoDateEl.innerHTML = `<span class="text-amber-300">🏢 ${calSelectedCompanyFilter}</span> <span class="text-[10px] text-slate-400 font-normal ml-1">전체 작업 내역</span>`;
-            }
-
-            if (isToday) {
-                todayBadge.classList.remove('hidden');
-            } else {
-                todayBadge.classList.add('hidden');
-            }
-
-            // 전체 일정 데이터 수집
             let itemsToDisplay = [];
-
-            if (calSelectedCompanyFilter === 'DATE_ONLY') {
-                // 특정 선택 날짜의 일정만 표시
+            if (calSelectedCompanyFilter === 'ALL') {
                 const key = `${year}-${month}-${day}`;
-                const raw = islandSchedules[key] || [];
-                itemsToDisplay = raw.map(s => typeof s === 'string' ? { id: s, dateKey: key, year, month, day, company: '일반', task: s, photos: [] } : s);
+                itemsToDisplay = islandSchedules[key] || [];
             } else {
-                // 'ALL' (전체 보기) 또는 특정 업체 필터일 때: 모든 날짜의 일정을 취합
                 Object.keys(islandSchedules).forEach(k => {
                     (islandSchedules[k] || []).forEach(item => {
-                        const sObj = typeof item === 'string' ? { id: item, dateKey: k, year, month, day, company: '일반', task: item, photos: [] } : item;
-                        if (calSelectedCompanyFilter === 'ALL' || sObj.company === calSelectedCompanyFilter) {
-                            itemsToDisplay.push(sObj);
-                        }
+                        if (item.company === calSelectedCompanyFilter) itemsToDisplay.push(item);
                     });
                 });
             }
 
             listEl.innerHTML = '';
             if (itemsToDisplay.length === 0) {
-                const emptyMsg = calSelectedCompanyFilter === 'ALL'
-                    ? '등록된 작업 일정이 없습니다. 아래 양식으로 일정을 등록해보세요!'
-                    : (calSelectedCompanyFilter === 'DATE_ONLY'
-                        ? '이 날짜에 등록된 작업이 없습니다.'
-                        : `'${calSelectedCompanyFilter}' 업체의 등록된 작업 내역이 없습니다.`);
-                listEl.innerHTML = `<div class="text-slate-500 py-3 text-center text-[10px]">${emptyMsg}</div>`;
+                listEl.innerHTML = '<div class="text-slate-500 py-3 text-center text-[10px]">등록된 작업 내역이 없습니다.</div>';
                 return;
             }
 
-            // 'ALL' (전체 보기)인 경우 업체별로 보기 좋게 그룹화
-            if (calSelectedCompanyFilter === 'ALL') {
-                const groupedByCompany = {};
-                itemsToDisplay.forEach(item => {
-                    const comp = item.company || '미지정 업체';
-                    if (!groupedByCompany[comp]) groupedByCompany[comp] = [];
-                    groupedByCompany[comp].push(item);
-                });
-
-                Object.keys(groupedByCompany).forEach(compName => {
-                    const compItems = groupedByCompany[compName];
-                    const compSection = document.createElement('div');
-                    compSection.className = 'space-y-1.5 pb-1';
-
-                    // 업체 그룹 헤더
-                    const compHeader = document.createElement('div');
-                    compHeader.className = 'flex items-center justify-between bg-slate-900/90 px-2 py-1 rounded-lg border-l-4 border-amber-400 text-[11px] font-bold text-amber-200';
-                    compHeader.innerHTML = `
-                        <span>🏢 ${compName}</span>
-                        <span class="text-[10px] text-slate-400 font-normal">총 ${compItems.length}건</span>
-                    `;
-                    compSection.appendChild(compHeader);
-
-                    // 해당 업체의 작업 카드들
-                    compItems.forEach(schedObj => {
-                        compSection.appendChild(createScheduleCardElement(schedObj, true));
-                    });
-
-                    listEl.appendChild(compSection);
-                });
-            } else {
-                // 특정 업체 또는 선택 날짜 리스트
-                itemsToDisplay.forEach(schedObj => {
-                    listEl.appendChild(createScheduleCardElement(schedObj, calSelectedCompanyFilter !== 'DATE_ONLY'));
-                });
-            }
-        }
-
-        function createScheduleCardElement(schedObj, showDateBadge = false) {
-            const photos = schedObj.photos || (schedObj.photo ? [schedObj.photo] : []);
-            const row = document.createElement('div');
-            row.className = 'bg-slate-950/85 p-2 rounded-xl border border-white/10 hover:border-emerald-400/40 transition-colors flex flex-col gap-1.5';
-
-            let photosHtml = '';
-            if (photos.length > 0) {
-                photosHtml = `<div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5">
-                    ${photos.map(p => `
-                        <img src="${p}" class="w-11 h-11 rounded-lg object-cover border border-white/20 cursor-pointer hover:scale-105 transition-transform flex-shrink-0" onclick="viewPhoto('${p}')" title="사진 크게 보기">
-                    `).join('')}
-                </div>`;
-            }
-
-            const dateBadgeHtml = showDateBadge && schedObj.month !== undefined && schedObj.day !== undefined
-                ? `<span class="text-[10px] text-teal-300 font-semibold bg-teal-950/70 px-1.5 py-0.5 rounded border border-teal-500/30">📅 ${schedObj.month + 1}월 ${schedObj.day}일</span>`
-                : '';
-
-            row.innerHTML = `
-                <div class="flex items-start justify-between gap-2">
-                    <div class="min-w-0 flex-1 space-y-0.5">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/70 px-1.5 py-0.5 rounded border border-emerald-500/30 truncate max-w-[140px]">🏢 ${schedObj.company}</span>
-                            ${dateBadgeHtml}
-                            ${photos.length > 0 ? `<span class="text-[10px] text-amber-300 font-semibold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/30">📷 ${photos.length}장</span>` : ''}
+            itemsToDisplay.forEach(s => {
+                const photos = s.photos || [];
+                const row = document.createElement('div');
+                row.className = 'bg-slate-950/85 p-2 rounded-xl border border-white/10 flex flex-col gap-1.5';
+                row.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/70 px-1.5 py-0.5 rounded border border-emerald-500/30">${s.company}</span>
+                            <p class="text-xs text-white font-medium pt-0.5">${s.task}</p>
                         </div>
-                        <p class="text-xs text-white font-medium break-all pt-0.5">${schedObj.task}</p>
+                        <button onclick="deleteScheduleItem('${s.id}')" class="text-slate-400 hover:text-rose-400 text-xs">🗑️</button>
                     </div>
-                    <button onclick="deleteScheduleItem('${schedObj.id}')" class="text-slate-400 hover:text-rose-400 p-1 rounded-lg text-xs transition-colors btn-press flex-shrink-0" title="작업 삭제">🗑️</button>
-                </div>
-                ${photosHtml}
-            `;
-            return row;
+                    ${photos.length > 0 ? `<div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5">${photos.map(p => `<img src="${p}" class="w-10 h-10 rounded-lg object-cover border border-white/20 cursor-pointer" onclick="viewPhoto('${p}')">`).join('')}</div>` : ''}
+                `;
+                listEl.appendChild(row);
+            });
         }
 
         document.getElementById('cal-btn-prev').onclick = () => {
             calCurrentMonth--;
-            if (calCurrentMonth < 0) {
-                calCurrentMonth = 11;
-                calCurrentYear--;
-            }
+            if (calCurrentMonth < 0) { calCurrentMonth = 11; calCurrentYear--; }
             renderInteractiveCalendar();
         };
 
         document.getElementById('cal-btn-next').onclick = () => {
             calCurrentMonth++;
-            if (calCurrentMonth > 11) {
-                calCurrentMonth = 0;
-                calCurrentYear++;
-            }
+            if (calCurrentMonth > 11) { calCurrentMonth = 0; calCurrentYear++; }
             renderInteractiveCalendar();
         };
 
@@ -3690,7 +3275,6 @@
                     closeModal('modal-furniture-catalog');
                     deselectFurniture();
 
-                    // 신규 가구 자유 배치 대기 모드 활성화 (Ghost Mode)
                     isPlacingNewFurniture = true;
                     const isWallItem = isWallMountedType(item.type);
                     pendingFurnitureData = {
@@ -3702,22 +3286,18 @@
                         rot: 0,
                         color: item.color,
                         books: item.type === 'bookshelf' ? ['자연의 신비', '섬 기록지'] : undefined,
-                        memoContent: item.type === 'memo_board' ? '1. 안전모 및 보호구 착용\n2. 도면 승인 및 자재 확인\n3. 마감 청소 완료' : undefined,
+                        memoContent: item.type === 'memo_board' ? '1. 안전모 착용\n2. 도면 확인' : undefined,
                         checklist: item.type === 'checklist_board' ? [
-                            { id: 'chk-1', text: '작업 구역 안전 점검 및 위험 요소 확인', done: true },
-                            { id: 'chk-2', text: '시공 자재 및 공구 규격 반입 검수', done: true },
-                            { id: 'chk-3', text: '방수층 실링 및 배관 결속 상태 점검', done: false },
-                            { id: 'chk-4', text: '현장 마감 청소 및 사진 기록 첨부', done: false }
+                            { id: 'chk-1', text: '작업 구역 안전 점검', done: true },
+                            { id: 'chk-2', text: '시공 자재 검수', done: false }
                         ] : undefined
                     };
 
-                    // 안내 배너 노출
                     const banner = document.getElementById('furniture-placement-banner');
                     document.getElementById('placement-guide-name').innerText = item.name;
                     banner.classList.remove('hidden');
                     banner.classList.add('flex');
 
-                    // 반투명 고스트 메시 생성
                     if (ghostPreviewMesh) indoorGroup.remove(ghostPreviewMesh);
                     ghostPreviewMesh = buildFurniture3D(pendingFurnitureData);
                     ghostPreviewMesh.traverse(child => {
@@ -3733,7 +3313,7 @@
             });
         }
 
-        /* ======================== 새 집 짓기 바인딩 ======================== */
+        /* ======================== 새 집 짓기 ======================== */
         document.getElementById('btn-add-building').onclick = () => {
             document.getElementById('modal-build-house').classList.remove('hidden');
         };
@@ -3742,7 +3322,6 @@
             const name = document.getElementById('input-house-name').value.trim() || '새 주택';
             const type = document.getElementById('select-house-type').value;
 
-            // 랜덤 배치 위치 (기존 연구소와 겹치지 않게)
             const angle = Math.random() * Math.PI * 2;
             const dist = 14 + Math.random() * 18;
             const newB = {
@@ -3752,16 +3331,15 @@
                 x: Math.cos(angle) * dist,
                 z: Math.sin(angle) * dist,
                 color: '#ef4444',
-                rooms: [
-                    { name: '거실', furnitures: [] }
-                ]
+                rooms: [{ name: '거실', furnitures: [] }]
             };
             buildings.push(newB);
             buildAllBuildings();
+            saveVillageDataToStorage(false);
             closeModal('modal-build-house');
         };
 
-        /* ======================== 낮/밤 전환 토글 ======================== */
+        /* ======================== 낮/밤 전환 ======================== */
         function toggleDayNight() {
             isNight = !isNight;
             const btnIcon = document.getElementById('day-night-icon');
@@ -3769,81 +3347,48 @@
             const statusText = document.getElementById('island-time-status');
 
             if (isNight) {
-                // 고요하고 은은한 밤하늘 & 푸른 달빛 연출
                 scene.background.setHex(0x090d16);
                 scene.fog.color.setHex(0x090d16);
-                scene.fog.density = 0.012;
-
                 hemiLight.color.setHex(0x38bdf8);
-                hemiLight.groundColor.setHex(0x020617);
-                hemiLight.intensity = 0.28;
-
                 sunLight.color.setHex(0xa5b4fc);
                 sunLight.intensity = 0.45;
-                sunLight.position.set(-30, 60, -20);
-
-                if (oceanMesh && oceanMesh.material) {
-                    oceanMesh.material.color.setHex(0x031525);
-                }
+                if (oceanMesh && oceanMesh.material) oceanMesh.material.color.setHex(0x031525);
 
                 btnIcon.innerText = '☀️';
                 btnText.innerText = '낮으로';
-                statusText.innerText = '별빛이 쏟아지는 고요한 밤 🌙';
-                statusText.className = 'text-[10px] text-indigo-300';
+                statusText.innerText = '별빛 쏟아지는 밤 🌙';
 
-                // 도로 가로등 불빛 밤 모드 점등
                 roadLanternMaterials.forEach(mat => {
                     mat.color.setHex(0xfef08a);
                     mat.emissive.setHex(0xf59e0b);
                     mat.emissiveIntensity = 0.95;
                 });
-
-                // 상공 구름 밤 모드 (달빛 머금은 은은한 다크 슬레이트 블루)
-                cloudMaterials.forEach(mat => {
-                    mat.color.setHex(0x334155);
-                    mat.opacity = 0.72;
-                });
+                cloudMaterials.forEach(mat => mat.color.setHex(0x334155));
             } else {
-                // 상쾌한 에메랄드 낮
                 scene.background.setHex(0xa7f3d0);
                 scene.fog.color.setHex(0xa7f3d0);
-                scene.fog.density = 0.008;
-
                 hemiLight.color.setHex(0xffffff);
-                hemiLight.groundColor.setHex(0x1e3a8a);
-                hemiLight.intensity = 0.7;
-
                 sunLight.color.setHex(0xfffbeb);
                 sunLight.intensity = 1.3;
-                sunLight.position.set(40, 65, 30);
-
-                if (oceanMesh && oceanMesh.material) {
-                    oceanMesh.material.color.setHex(0x0284c7);
-                }
+                if (oceanMesh && oceanMesh.material) oceanMesh.material.color.setHex(0x0284c7);
 
                 btnIcon.innerText = '🌙';
                 btnText.innerText = '밤으로';
-                statusText.innerText = '따스한 햇살 가득한 낮 ☀️';
-                statusText.className = 'text-[10px] text-slate-400';
+                statusText.innerText = '따스한 햇살 낮 ☀️';
 
-                // 도로 가로등 소등
                 roadLanternMaterials.forEach(mat => {
                     mat.color.setHex(0xfde047);
                     mat.emissive.setHex(0x000000);
                     mat.emissiveIntensity = 0.0;
                 });
-
-                // 상공 구름 낮 모드 (새하얗고 뽀송한 화이트)
-                cloudMaterials.forEach(mat => {
-                    mat.color.setHex(0xffffff);
-                    mat.opacity = 0.86;
-                });
+                cloudMaterials.forEach(mat => mat.color.setHex(0xffffff));
             }
+            saveVillageDataToStorage(false);
         }
 
         document.getElementById('btn-day-night').onclick = toggleDayNight;
 
-        /* ======================== 시점 전환 버튼들 ======================== */
+        /* ======================== 시점 전환 버튼 ======================== */
         const btnTopView = document.getElementById('btn-top-view');
         const btnWalkMode = document.getElementById('btn-walk-mode');
         const joyZone = document.getElementById('joystick-zone');
@@ -3876,8 +3421,7 @@
         };
 
         document.getElementById('btn-leave-room').onclick = leaveBuilding;
-        
-        // 실내 카메라 모드 제어 함수
+
         const btnRoomOrbit = document.getElementById('btn-room-orbit-view');
         const btnRoomIso = document.getElementById('btn-room-iso-view');
 
@@ -3896,22 +3440,13 @@
         }
 
         btnRoomOrbit.onclick = () => {
-            if (roomCamMode === 'orbit') {
-                setRoomCamMode('follow');
-            } else {
-                setRoomCamMode('orbit');
-            }
+            setRoomCamMode(roomCamMode === 'orbit' ? 'follow' : 'orbit');
         };
 
         btnRoomIso.onclick = () => {
-            if (roomCamMode === 'iso') {
-                setRoomCamMode('follow');
-            } else {
-                setRoomCamMode('iso');
-            }
+            setRoomCamMode(roomCamMode === 'iso' ? 'follow' : 'iso');
         };
 
-        // 방 전환, 삭제, 전체 보기 UI 버튼 및 이벤트 바인딩
         document.getElementById('btn-prev-room').onclick = () => {
             if (currentRoomIndex > 0) switchRoom(currentRoomIndex - 1);
         };
@@ -3923,50 +3458,32 @@
         document.getElementById('btn-edit-room-name').onclick = promptEditCurrentRoomName;
         document.getElementById('btn-delete-subroom').onclick = deleteCurrentSubRoom;
         document.getElementById('btn-room-all-view').onclick = toggleAllRoomsView;
-
-        document.getElementById('select-active-room').onchange = (e) => {
-            switchRoom(parseInt(e.target.value, 10));
-        };
+        document.getElementById('select-active-room').onchange = (e) => switchRoom(parseInt(e.target.value, 10));
         document.getElementById('btn-add-subroom').onclick = promptAddNewSubRoom;
-
-        // 방 이름 저장 버튼 및 엔터키 이벤트 바인딩
         document.getElementById('btn-save-room-name').onclick = handleSaveRoomName;
-        document.getElementById('input-room-name').onkeydown = (e) => {
-            if (e.key === 'Enter') handleSaveRoomName();
-        };
-
-        document.getElementById('btn-room-catalog').onclick = () => {
-            document.getElementById('modal-furniture-catalog').classList.remove('hidden');
-        };
+        document.getElementById('input-room-name').onkeydown = (e) => { if (e.key === 'Enter') handleSaveRoomName(); };
+        document.getElementById('btn-room-catalog').onclick = () => document.getElementById('modal-furniture-catalog').classList.remove('hidden');
 
         window.closeModal = function(id) {
             document.getElementById(id).classList.add('hidden');
         };
 
-        /* ======================== PWA 서비스 워커 및 원클릭 앱 설치 ======================== */
+        /* ======================== PWA 설치 지원 ======================== */
         let deferredPrompt = null;
         function setupPWA() {
-            // 인라인 Blob 서비스 워커 등록 (GitHub Pages 오프라인 캐싱 및 앱 조건 충족)
             if ('serviceWorker' in navigator) {
                 try {
                     const swCode = `
                         self.addEventListener('install', e => self.skipWaiting());
                         self.addEventListener('activate', e => clients.claim());
-                        self.addEventListener('fetch', e => {
-                            e.respondWith(
-                                fetch(e.request).catch(() => caches.match(e.request))
-                            );
-                        });
+                        self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
                     `;
                     const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                    const swUrl = URL.createObjectURL(swBlob);
-                    navigator.serviceWorker.register(swUrl).catch(() => {});
+                    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
                 } catch (e) {}
             }
 
             const btnInstall = document.getElementById('btn-pwa-install');
-
-            // 브라우저가 앱 설치 준비 완료 시 이벤트 수신
             window.addEventListener('beforeinstallprompt', e => {
                 e.preventDefault();
                 deferredPrompt = e;
@@ -3976,8 +3493,6 @@
                 }
             });
 
-            // iOS 사파리 또는 모바일 브라우저 감지 시 설치 안내 버튼 항상 표기
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             if (!isStandalone && btnInstall) {
                 btnInstall.classList.remove('hidden');
@@ -3995,32 +3510,27 @@
                         }
                         deferredPrompt = null;
                     } else {
-                        // iOS 또는 이미 설치된 환경 안내 팝업
                         document.getElementById('modal-pwa-guide').classList.remove('hidden');
                     }
                 };
             }
         }
 
-        /* ======================== 메인 애니메이션 루프 ======================== */
+        /* ======================== 메인 루프 ======================== */
         function animate() {
             requestAnimationFrame(animate);
             const time = performance.now() * 0.001;
 
-            // 바다 물결 애니메이션
             if (oceanMesh) {
                 oceanMesh.position.y = -1.2 + Math.sin(time * 1.5) * 0.08;
             }
 
-            // 상공 몽실구름 바람 유영 애니메이션
             if (cloudsGroup && outdoorGroup.visible) {
                 cloudsGroup.children.forEach(c => {
                     if (!c.userData) return;
                     c.position.x += c.userData.driftSpeedX;
                     c.position.z += c.userData.driftSpeedZ;
                     c.rotation.y += c.userData.rotSpeed;
-
-                    // 경계 밖으로 멀어지면 반대편 수평선 너머로 자연스럽게 리스폰 순환
                     if (c.position.x > 88) {
                         c.position.x = -88;
                         c.position.z = (Math.random() - 0.5) * 110;
@@ -4028,7 +3538,6 @@
                 });
             }
 
-            // 건물 이름 라벨 3D 투영 위치 업데이트
             if (!isInsideRoom) {
                 const labelContainer = document.getElementById('building-labels-container');
                 if (labelContainer && !labelContainer.classList.contains('hidden')) {
@@ -4043,16 +3552,13 @@
                             badge.style.display = 'none';
                         } else {
                             badge.style.display = 'flex';
-                            const sx = (tempV.x * 0.5 + 0.5) * window.innerWidth;
-                            const sy = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
-                            badge.style.left = `${sx}px`;
-                            badge.style.top = `${sy}px`;
+                            badge.style.left = `${(tempV.x * 0.5 + 0.5) * window.innerWidth}px`;
+                            badge.style.top = `${(-tempV.y * 0.5 + 0.5) * window.innerHeight}px`;
                         }
                     });
                 }
             }
 
-            // 나무 흔들림 물리 (벌목 피격 효과)
             treeObjects.forEach(t => {
                 if (t.userData.shakeTimer > 0) {
                     t.userData.shakeTimer--;
@@ -4064,7 +3570,7 @@
                 }
             });
 
-            // [실내] 캐릭터 방 안 걷기 & 카메라 추적
+            // 실내 이동 & 카메라
             if (isInsideRoom && playerAvatarObj) {
                 const walkSpeed = 0.08;
                 const turnSpeed = 0.04;
@@ -4095,13 +3601,11 @@
                     const nx = playerAvatarObj.position.x + Math.sin(playerYaw) * sign * step;
                     const nz = playerAvatarObj.position.z + Math.cos(playerYaw) * sign * step;
 
-                    // 넓어진 방 벽면(W:18, D:16) 안에서만 걸어 다니도록 충돌 제한
                     if (Math.abs(nx) < 8.2 && Math.abs(nz) < 7.2) {
                         playerAvatarObj.position.x = nx;
                         playerAvatarObj.position.z = nz;
                     }
 
-                    // 블록 사람 팔다리 스윙
                     const swing = Math.sin(time * 7.5) * 0.55;
                     if (playerAvatarObj.userData.leftArm) {
                         playerAvatarObj.userData.leftArm.rotation.x = swing;
@@ -4118,52 +3622,43 @@
                     }
                 }
 
-                // 실내 카메라 시점 (3D 자유 둘러보기 vs 조감도 vs 캐릭터 추적 모드)
+                // [전체 방 보기]: 360도 3D 오빗 회전 & 줌 연동
                 if (isAllRoomsMode && currentBuilding) {
-                    // [전체 방 동시 조감도]: 확장된 모든 방이 한눈에 보이도록 상공 광각 카메라 자동 연산
-                    const roomCount = currentBuilding.rooms.length;
-                    const targetCamY = 22 + roomCount * 5;
-                    const targetCamZ = 24 + roomCount * 4;
+                    const r = roomOrbitAngles.radius || 30;
+                    const rx = r * Math.sin(roomOrbitAngles.phi) * Math.sin(roomOrbitAngles.theta);
+                    const ry = Math.max(r * Math.cos(roomOrbitAngles.phi), 3.5);
+                    const rz = r * Math.sin(roomOrbitAngles.phi) * Math.cos(roomOrbitAngles.theta);
 
-                    camera.position.x += (0 - camera.position.x) * 0.08;
-                    camera.position.y += (targetCamY - camera.position.y) * 0.08;
-                    camera.position.z += (targetCamZ - camera.position.z) * 0.08;
-                    camera.lookAt(0, 1.5, 0);
+                    camera.position.x += (rx - camera.position.x) * 0.08;
+                    camera.position.y += (ry - camera.position.y) * 0.08;
+                    camera.position.z += (rz - camera.position.z) * 0.08;
+                    camera.lookAt(0, 1.2, 0);
                 } else if (roomCamMode === 'orbit') {
-                    // 방 중심을 축으로 360도 자유 회전 및 줌 시점
                     const rx = roomOrbitAngles.radius * Math.sin(roomOrbitAngles.phi) * Math.sin(roomOrbitAngles.theta);
                     const ry = Math.max(roomOrbitAngles.radius * Math.cos(roomOrbitAngles.phi), 1.8);
                     const rz = roomOrbitAngles.radius * Math.sin(roomOrbitAngles.phi) * Math.cos(roomOrbitAngles.theta);
-                    
                     camera.position.x += (rx - camera.position.x) * 0.08;
                     camera.position.y += (ry - camera.position.y) * 0.08;
                     camera.position.z += (rz - camera.position.z) * 0.08;
                     camera.lookAt(0, 1.8, 0);
                 } else if (roomCamMode === 'iso') {
-                    // 넓어진 방 전체를 대각선 위에서 내려다보는 시원한 조감도 (아이소메트릭)
                     camera.position.x += (0 - camera.position.x) * 0.08;
                     camera.position.y += (14.2 - camera.position.y) * 0.08;
                     camera.position.z += (14.0 - camera.position.z) * 0.08;
                     camera.lookAt(0, 0.8, -0.8);
                 } else {
-                    // 캐릭터 3인칭 추적 카메라 (기본)
                     const targetCamX = playerAvatarObj.position.x - Math.sin(playerYaw) * 4.6;
                     const targetCamY = playerAvatarObj.position.y + 3.2;
                     const targetCamZ = playerAvatarObj.position.z - Math.cos(playerYaw) * 4.6;
-
-                    const clampedCamX = Math.min(8.0, Math.max(-8.0, targetCamX));
-                    const clampedCamZ = Math.min(8.0, Math.max(-7.2, targetCamZ));
-
-                    camera.position.x += (clampedCamX - camera.position.x) * 0.08;
+                    camera.position.x += (Math.min(8.0, Math.max(-8.0, targetCamX)) - camera.position.x) * 0.08;
                     camera.position.y += (targetCamY - camera.position.y) * 0.08;
-                    camera.position.z += (clampedCamZ - camera.position.z) * 0.08;
+                    camera.position.z += (Math.min(8.0, Math.max(-7.2, targetCamZ)) - camera.position.z) * 0.08;
                     camera.lookAt(playerAvatarObj.position.x, playerAvatarObj.position.y + 1.2, playerAvatarObj.position.z);
                 }
             }
 
-            // [야외] 캐릭터 & 플레이어 걷기 처리
+            // 야외 이동 & 카메라
             if (!isInsideRoom) {
-                // 건물 근접 거리 실시간 체크 (입장 플로팅 버튼)
                 if (playerAvatarObj) {
                     let closestB = null;
                     let minDist = Infinity;
@@ -4188,7 +3683,6 @@
                     }
                 }
 
-                // 캐릭터 이동 (야외 걷기 모드)
                 if (outdoorCameraMode === 'walk' && playerAvatarObj) {
                     const walkSpeed = 0.11;
                     const turnSpeed = 0.045;
@@ -4219,7 +3713,6 @@
                         const nx = playerAvatarObj.position.x + Math.sin(playerYaw) * sign * step;
                         const nz = playerAvatarObj.position.z + Math.cos(playerYaw) * sign * step;
 
-                        // 섬 경계(반경 40m) 내부 이동 제한
                         if (Math.hypot(nx, nz) < 40) {
                             playerAvatarObj.position.x = nx;
                             playerAvatarObj.position.z = nz;
@@ -4242,7 +3735,6 @@
                     }
                 }
 
-                // 오프닝 인트로 카메라 줌인 또는 3인칭 추적 카메라 처리
                 if (isIntroAnimating) {
                     if (introStartTime === 0) introStartTime = time;
                     const t = Math.min((time - introStartTime) / INTRO_DURATION, 1.0);
@@ -4268,24 +3760,19 @@
 
                     const startPos = new THREE.Vector3(15, 125, 95);
                     camera.position.lerpVectors(startPos, targetPos, ease);
-                    const curLook = new THREE.Vector3(0, 0, 0).lerp(lookTarget, ease);
-                    camera.lookAt(curLook);
+                    camera.lookAt(new THREE.Vector3(0, 0, 0).lerp(lookTarget, ease));
 
-                    if (t >= 1.0) {
-                        isIntroAnimating = false;
-                    }
+                    if (t >= 1.0) isIntroAnimating = false;
                 } else if (outdoorCameraMode === 'walk' && playerAvatarObj) {
                     const targetCamX = playerAvatarObj.position.x - Math.sin(playerYaw) * 12.8;
                     const targetCamY = playerAvatarObj.position.y + 6.8;
                     const targetCamZ = playerAvatarObj.position.z - Math.cos(playerYaw) * 12.8;
-
                     camera.position.x += (targetCamX - camera.position.x) * 0.08;
                     camera.position.y += (targetCamY - camera.position.y) * 0.08;
                     camera.position.z += (targetCamZ - camera.position.z) * 0.08;
                     camera.lookAt(playerAvatarObj.position.x, playerAvatarObj.position.y + 1.6, playerAvatarObj.position.z);
                 }
 
-                // NPC 자율 배회 (차분한 산책 속도)
                 npcObjects.forEach((npc, i) => {
                     const d = Math.hypot(npc.userData.target.x - npc.position.x, npc.userData.target.z - npc.position.z);
                     if (d < 0.3 || Math.random() < 0.005) {
@@ -4300,7 +3787,6 @@
                         npc.position.x += Math.sin(ang) * 0.016;
                         npc.position.z += Math.cos(ang) * 0.016;
 
-                        // NPC 걷기 팔다리 스윙
                         const npcSwing = Math.sin(time * 5 + i) * 0.45;
                         if (npc.userData.leftArm) {
                             npc.userData.leftArm.rotation.x = npcSwing;
@@ -4321,11 +3807,9 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        /* ======================== 윈도우 로드 시작 ======================== */
         window.onload = function() {
             initScene();
             setupPWA();
-            // 모바일 터치 스크린 기기 감지 시 걷기 모드로 자동 활성화하여 조이스틱 즉시 표시
             if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768) {
                 btnWalkMode.click();
             }
