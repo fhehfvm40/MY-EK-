@@ -4999,17 +4999,6 @@ ${note.thoughts}
             return group;
         }
 
-        /* ======================== 카메라 ======================== */
-        function updateCameraOrbit() {
-            if (isInsideRoom) return;
-
-            const x = orbitAngles.radius * Math.sin(orbitAngles.phi) * Math.sin(orbitAngles.theta);
-            const y = orbitAngles.radius * Math.cos(orbitAngles.phi);
-            const z = orbitAngles.radius * Math.sin(orbitAngles.phi) * Math.cos(orbitAngles.theta);
-            camera.position.set(x, Math.max(y, 4), z);
-            camera.lookAt(0, 2, 0);
-        }
-
         /* ======================== 인터랙션 ======================== */
         let wasInteractingWithObject = false;
         let wasPinching = false;
@@ -5313,7 +5302,6 @@ ${note.thoughts}
                 if (isOrbiting) {
                     orbitAngles.theta -= dx * 0.006;
                     orbitAngles.phi = Math.max(0.2, Math.min(Math.PI / 2.1, orbitAngles.phi - dy * 0.006));
-                    updateCameraOrbit();
                 }
             });
 
