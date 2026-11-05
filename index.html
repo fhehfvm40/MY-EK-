@@ -103,7 +103,13 @@
                 <span id="day-night-text">밤으로</span>
             </button>
 
-            <!-- 6. 새 집 짓기 -->
+            <!-- 6. 섬 전체 보기 (조감도 뷰) -->
+            <button id="btn-island-overview" class="flex-shrink-0 bg-slate-900/80 hover:bg-slate-800 text-teal-300 px-2.5 py-1.5 rounded-xl text-xs font-semibold btn-press flex items-center gap-1 border border-teal-500/30 shadow-sm whitespace-nowrap">
+                <span>🗺️</span>
+                <span>섬 전체</span>
+            </button>
+
+            <!-- 7. 새 집 짓기 -->
             <button id="btn-add-building" class="flex-shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-md btn-press flex items-center gap-1 whitespace-nowrap">
                 <span>➕</span>
                 <span>새 집 짓기</span>
@@ -329,6 +335,12 @@
         </div>
     </div>
 
+    <!-- [야외] 자유 줌인/둘러보기 중 캐릭터로 카메라 즉시 복귀 플로팅 버튼 -->
+    <div id="btn-reset-camera-focus" class="fixed bottom-6 right-6 hidden glass-panel px-3.5 py-2 rounded-2xl shadow-2xl items-center gap-2 border border-emerald-400/50 bg-slate-900/90 text-emerald-300 font-bold text-xs btn-press z-30 cursor-pointer animate-bounce">
+        <span>🎯</span>
+        <span>캐릭터 시점 복귀</span>
+    </div>
+
     <!-- 모달: 가구 이름 변경 -->
     <div id="modal-edit-furniture-name" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-sm rounded-2xl p-4 border border-white/20 shadow-2xl space-y-3 text-xs">
@@ -418,18 +430,29 @@
         </div>
     </div>
 
-    <!-- 모달: 집 이름 변경 -->
+    <!-- 모달: 집 이름 변경 및 스타일 리모델링 -->
     <div id="modal-edit-name" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this) closeModal('modal-edit-name')">
         <div class="glass-panel w-full max-w-sm rounded-2xl p-4 border border-white/20 shadow-2xl space-y-3.5 text-xs">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
                 <h3 class="font-bold text-sm text-emerald-300 flex items-center gap-1.5">
-                    <span>✏️</span> 건물 이름 변경
+                    <span>✏️</span> 건물 이름 및 스타일 리모델링
                 </h3>
                 <button onclick="closeModal('modal-edit-name')" class="text-slate-400 hover:text-white text-lg">&times;</button>
             </div>
             <div>
-                <label class="block text-slate-300 mb-1 text-[11px] font-semibold">새 건물 이름</label>
+                <label class="block text-slate-300 mb-1 text-[11px] font-semibold">건물 이름</label>
                 <input id="input-rename-building" type="text" placeholder="예: 해안 펜션, 등대 카페 등" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-emerald-400 text-xs">
+            </div>
+            <div id="wrapper-rename-style">
+                <label class="block text-slate-300 mb-1 text-[11px] font-semibold">건물 외형 (스타일 변경)</label>
+                <select id="select-rename-style" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-emerald-400 text-xs">
+                    <option value="cottage">🏡 햇살 코티지</option>
+                    <option value="windmill">💨 풍차 아틀리에</option>
+                    <option value="lighthouse">🗼 해안 등대</option>
+                    <option value="cabin">🪵 통나무 오두막</option>
+                    <option value="modern">🏛️ 에코 모던 빌라</option>
+                    <option value="hanok">🏯 청풍 기와 한옥</option>
+                </select>
             </div>
             <div class="flex justify-end gap-2 pt-1 border-t border-white/10">
                 <button onclick="closeModal('modal-edit-name')" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs">취소</button>
@@ -1318,10 +1341,14 @@
         let currentBuilding = null;
         let currentRoomIndex = 0;
         let woodCount = 0;
-        let outdoorCamDistance = 18.0; // 야외 3인칭 추적 기본 거리 (기존 11.5 -> 18.0으로 확장)
-        let outdoorCamHeight = 9.5;    // 야외 3인칭 추적 기본 높이 (기존 6.2 -> 9.5로 확장)
-        let outdoorCamPitchFactor = 0.52; // 줌 거리에 따라 동적으로 변화하는 고도 비율
-        let occludedTreeMaterials = new Set(); // 카메라를 가리는 나무 메쉬 재질 보관용
+        let outdoorCamDistance = 18.0; // 야외 3인칭 추적 기본 거리
+        let outdoorCamHeight = 9.5;    // 야외 3인칭 추적 기본 높이
+        let outdoorCamPitchFactor = 0.52;
+        let occludedTreeMaterials = new Set();
+
+        // 야외 자유 줌인 & 시선 초점(Focus Point) 시스템
+        let outdoorFocusPos = new THREE.Vector3(0, 1.3, 9.5);
+        let isCamDetachedFromPlayer = false;
 
         let buildings = [
             {
@@ -3529,7 +3556,10 @@ ${note.thoughts}
                 const bGroup = new THREE.Group();
                 bGroup.position.set(b.x, 0, b.z);
 
+                let doorZ = 2.28;
+
                 if (b.type === 'laboratory') {
+                    doorZ = 4.2;
                     const base = new THREE.Mesh(
                         new THREE.CylinderGeometry(4.2, 4.8, 2.6, 24),
                         new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3 })
@@ -3578,6 +3608,7 @@ ${note.thoughts}
                     signBoard.castShadow = true;
                     bGroup.add(signBoard);
                 } else if (b.type === 'windmill') {
+                    doorZ = 2.45;
                     const tower = new THREE.Mesh(
                         new THREE.CylinderGeometry(2.2, 3.2, 4.8, 16),
                         new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 })
@@ -3593,22 +3624,30 @@ ${note.thoughts}
                     cap.position.y = 5.7;
                     bGroup.add(cap);
 
-                    // 풍차 날개
                     const rotor = new THREE.Group();
                     rotor.position.set(0, 4.8, 2.3);
                     for (let blade = 0; blade < 4; blade++) {
-                        const bMesh = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.2, 0.05), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
+                        const bMesh = new THREE.Mesh(new THREE.BoxGeometry(0.32, 3.4, 0.05), new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.6 }));
                         bMesh.rotation.z = (blade * Math.PI) / 2;
                         rotor.add(bMesh);
                     }
                     bGroup.add(rotor);
                 } else if (b.type === 'lighthouse') {
+                    doorZ = 2.2;
                     const tower = new THREE.Mesh(
                         new THREE.CylinderGeometry(1.8, 2.8, 6.2, 16),
                         new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.6 })
                     );
                     tower.position.y = 3.1;
+                    tower.castShadow = true;
                     bGroup.add(tower);
+
+                    const stripe = new THREE.Mesh(
+                        new THREE.CylinderGeometry(2.15, 2.45, 1.8, 16),
+                        new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 })
+                    );
+                    stripe.position.y = 3.1;
+                    bGroup.add(stripe);
 
                     const lightBox = new THREE.Mesh(
                         new THREE.CylinderGeometry(1.6, 1.6, 1.2, 16),
@@ -3616,7 +3655,53 @@ ${note.thoughts}
                     );
                     lightBox.position.y = 6.8;
                     bGroup.add(lightBox);
+                } else if (b.type === 'cabin') {
+                    doorZ = 2.28;
+                    const logMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.85 });
+                    const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 3.0, 4.4), logMat);
+                    body.position.y = 1.5;
+                    body.castShadow = true;
+                    bGroup.add(body);
+
+                    const roofMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.7 });
+                    const roof = new THREE.Mesh(new THREE.ConeGeometry(3.9, 2.6, 4), roofMat);
+                    roof.position.y = 4.3;
+                    roof.rotation.y = Math.PI / 4;
+                    bGroup.add(roof);
+
+                    const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.2, 0.7), new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.9 }));
+                    chimney.position.set(1.4, 4.2, -1.1);
+                    bGroup.add(chimney);
+                } else if (b.type === 'modern') {
+                    doorZ = 2.28;
+                    const wallMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.3 });
+                    const glassMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.1, metalness: 0.7, transparent: true, opacity: 0.7 });
+
+                    const groundFloor = new THREE.Mesh(new THREE.BoxGeometry(4.8, 2.2, 4.4), wallMat);
+                    groundFloor.position.y = 1.1;
+                    const secondFloor = new THREE.Mesh(new THREE.BoxGeometry(4.2, 2.0, 4.0), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 }));
+                    secondFloor.position.set(0.3, 3.2, -0.2);
+                    const bigWindow = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.4), glassMat);
+                    bigWindow.position.set(0.3, 3.2, 1.82);
+
+                    bGroup.add(groundFloor, secondFloor, bigWindow);
+                } else if (b.type === 'hanok') {
+                    doorZ = 2.28;
+                    const baseStone = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.5, 4.8), new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.9 }));
+                    baseStone.position.y = 0.25;
+                    const woodBody = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.4, 4.0), new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.6 }));
+                    woodBody.position.y = 1.7;
+
+                    const roofMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4 });
+                    const roof = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.5, 5.2), roofMat);
+                    roof.position.y = 3.15;
+                    const roofTop = new THREE.Mesh(new THREE.ConeGeometry(3.6, 1.5, 4), roofMat);
+                    roofTop.position.y = 4.1;
+                    roofTop.rotation.y = Math.PI / 4;
+
+                    bGroup.add(baseStone, woodBody, roof, roofTop);
                 } else {
+                    doorZ = 2.28;
                     const body = new THREE.Mesh(
                         new THREE.BoxGeometry(4.5, 3.2, 4.5),
                         new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.6 })
@@ -3638,7 +3723,7 @@ ${note.thoughts}
                     new THREE.BoxGeometry(1.2, 2.0, 0.3),
                     new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.4 })
                 );
-                door.position.set(0, 1.0, 4.2);
+                door.position.set(0, 1.0, doorZ);
                 door.userData = { isDoor: true, buildingId: b.id };
                 bGroup.add(door);
 
@@ -3810,6 +3895,16 @@ ${note.thoughts}
             renamingBuildingId = bId;
             const inputRename = document.getElementById('input-rename-building');
             if (inputRename) inputRename.value = b.name;
+
+            const styleWrapper = document.getElementById('wrapper-rename-style');
+            const selectStyle = document.getElementById('select-rename-style');
+            if (bId === 'lab-center') {
+                if (styleWrapper) styleWrapper.classList.add('hidden');
+            } else {
+                if (styleWrapper) styleWrapper.classList.remove('hidden');
+                if (selectStyle) selectStyle.value = b.type || 'cottage';
+            }
+
             const modalEditName = document.getElementById('modal-edit-name');
             if (modalEditName) modalEditName.classList.remove('hidden');
         };
@@ -3820,13 +3915,38 @@ ${note.thoughts}
                 if (!renamingBuildingId) return;
                 const b = buildings.find(x => x.id === renamingBuildingId);
                 const inputRename = document.getElementById('input-rename-building');
+                const selectStyle = document.getElementById('select-rename-style');
                 const newName = inputRename ? inputRename.value.trim() : '';
+
                 if (b && newName) {
                     b.name = newName;
-                    updateBuildingLabels();
+                    if (b.id !== 'lab-center' && selectStyle) {
+                        b.type = selectStyle.value;
+                    }
+                    buildAllBuildings();
                     saveVillageDataToStorage(false);
                 }
                 closeModal('modal-edit-name');
+            };
+        }
+
+        function updateResetCamButton() {
+            const btn = document.getElementById('btn-reset-camera-focus');
+            if (!btn) return;
+            if (!isInsideRoom && isCamDetachedFromPlayer) {
+                btn.classList.remove('hidden');
+                btn.classList.add('flex');
+            } else {
+                btn.classList.add('hidden');
+                btn.classList.remove('flex');
+            }
+        }
+
+        const resetCamBtn = document.getElementById('btn-reset-camera-focus');
+        if (resetCamBtn) {
+            resetCamBtn.onclick = () => {
+                isCamDetachedFromPlayer = false;
+                updateResetCamButton();
             };
         }
 
@@ -5097,6 +5217,20 @@ ${note.thoughts}
                 const dy = e.clientY - prevMousePos.y;
                 prevMousePos = { x: e.clientX, y: e.clientY };
 
+                // 야외에서 마우스 우클릭 드래그 or Shift+드래그 시 화면 자유 패닝(Pan)
+                if (!isInsideRoom && (e.buttons === 2 || e.shiftKey) && !isDraggingBuilding) {
+                    const camDir = new THREE.Vector3();
+                    camera.getWorldDirection(camDir);
+                    const camRight = new THREE.Vector3().crossVectors(camDir, new THREE.Vector3(0, 1, 0)).normalize();
+                    const camFwd = new THREE.Vector3(camDir.x, 0, camDir.z).normalize();
+                    const panSpeed = outdoorCamDistance * 0.0016;
+                    outdoorFocusPos.addScaledVector(camRight, -dx * panSpeed);
+                    outdoorFocusPos.addScaledVector(camFwd, dy * panSpeed);
+                    isCamDetachedFromPlayer = true;
+                    updateResetCamButton();
+                    return;
+                }
+
                 if (isInsideRoom && isPlacingNewFurniture && ghostPreviewMesh) {
                     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -5224,15 +5358,38 @@ ${note.thoughts}
                         roomOrbitAngles.radius = Math.max(7, Math.min(32, roomOrbitAngles.radius + e.deltaY * 0.02));
                     }
                 } else {
-                    // 야외 줌인/줌아웃 (최대 55.0까지 확장하여 섬 전체 조감 뷰 지원)
-                    outdoorCamDistance = Math.max(8.0, Math.min(55.0, outdoorCamDistance + e.deltaY * 0.03));
+                    // 야외 스마트 프리 줌인: 최대 160m까지 대폭 확장하여 섬 전체 조망 가능
+                    const prevDist = outdoorCamDistance;
+                    outdoorCamDistance = Math.max(3.5, Math.min(160.0, outdoorCamDistance + e.deltaY * 0.04));
+                    const deltaZoom = prevDist - outdoorCamDistance;
+
+                    if (deltaZoom > 0.05) {
+                        // 줌인: 마우스 커서가 가리키는 특정 구역(집, 풍차, 해변 등)으로 초점 이동
+                        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                        raycaster.setFromCamera(mouse, camera);
+                        if (raycaster.ray.intersectPlane(dragPlane, dragIntersection)) {
+                            if (Math.hypot(dragIntersection.x, dragIntersection.z) < 70) {
+                                const targetPoint = new THREE.Vector3(dragIntersection.x, 1.3, dragIntersection.z);
+                                const shiftFactor = Math.min(0.35, (deltaZoom / outdoorCamDistance) * 2.2);
+                                outdoorFocusPos.lerp(targetPoint, shiftFactor);
+                                isCamDetachedFromPlayer = true;
+                                updateResetCamButton();
+                            }
+                        }
+                    } else if (deltaZoom < -0.05 && outdoorCamDistance > 45) {
+                        // 멀리 줌아웃 시: 섬 전체가 한눈에 들어오도록 섬 중앙 (0, 0, 0) 방향으로 시선 자연스럽게 이동
+                        const islandCenter = new THREE.Vector3(0, 1.5, 0);
+                        outdoorFocusPos.lerp(islandCenter, 0.08);
+                        isCamDetachedFromPlayer = true;
+                        updateResetCamButton();
+                    }
                 }
             }, { passive: true });
 
             // 모바일 2손가락 핀치 줌인/줌아웃 터치 이벤트 (화면 전체 window 대상 감지)
             window.addEventListener('touchstart', e => {
                 if (e.touches && e.touches.length >= 2) {
-                    // 손가락이 2개 이상 닿는 순간 조이스틱 즉시 취소 및 숨김
                     if (typeof cancelJoystickGlobal === 'function') {
                         cancelJoystickGlobal();
                     }
@@ -5250,7 +5407,6 @@ ${note.thoughts}
             window.addEventListener('touchmove', e => {
                 if (e.touches && e.touches.length >= 2) {
                     if (e.cancelable) e.preventDefault();
-                    // 줌 동작 중에도 조이스틱 비활성화 유지
                     if (typeof cancelJoystickGlobal === 'function') {
                         cancelJoystickGlobal();
                     }
@@ -5272,7 +5428,33 @@ ${note.thoughts}
                                 roomOrbitAngles.radius = Math.max(7, Math.min(32, roomOrbitAngles.radius + delta * 0.06));
                             }
                         } else {
-                            outdoorCamDistance = Math.max(8.0, Math.min(55.0, outdoorCamDistance + delta * 0.1));
+                            // 모바일 터치 두 손가락 중심 지점으로 프리 줌인 (최대 160m)
+                            const prevDist = outdoorCamDistance;
+                            outdoorCamDistance = Math.max(3.5, Math.min(160.0, outdoorCamDistance + delta * 0.12));
+                            const deltaZoom = prevDist - outdoorCamDistance;
+
+                            if (deltaZoom > 0.12) {
+                                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                                mouse.x = (midX / window.innerWidth) * 2 - 1;
+                                mouse.y = -(midY / window.innerHeight) * 2 + 1;
+                                raycaster.setFromCamera(mouse, camera);
+                                if (raycaster.ray.intersectPlane(dragPlane, dragIntersection)) {
+                                    if (Math.hypot(dragIntersection.x, dragIntersection.z) < 70) {
+                                        const targetPoint = new THREE.Vector3(dragIntersection.x, 1.3, dragIntersection.z);
+                                        const shiftFactor = Math.min(0.38, (deltaZoom / outdoorCamDistance) * 2.2);
+                                        outdoorFocusPos.lerp(targetPoint, shiftFactor);
+                                        isCamDetachedFromPlayer = true;
+                                        updateResetCamButton();
+                                    }
+                                }
+                            } else if (deltaZoom < -0.12 && outdoorCamDistance > 45) {
+                                // 핀치 축소 시 섬 중앙으로 시선 확장
+                                const islandCenter = new THREE.Vector3(0, 1.5, 0);
+                                outdoorFocusPos.lerp(islandCenter, 0.08);
+                                isCamDetachedFromPlayer = true;
+                                updateResetCamButton();
+                            }
                         }
                     }
                     initialPinchDistance = currentDist;
@@ -5827,6 +6009,19 @@ ${note.thoughts}
             document.getElementById('modal-build-house').classList.remove('hidden');
         };
 
+        // 섬 전체 조감도 뷰 토글
+        const btnIslandOverview = document.getElementById('btn-island-overview');
+        if (btnIslandOverview) {
+            btnIslandOverview.onclick = () => {
+                isCamDetachedFromPlayer = true;
+                outdoorFocusPos.set(0, 1.5, 0); // 섬 중심
+                outdoorCamDistance = 105.0;     // 전체 섬과 바다가 시원하게 들어오는 거리
+                orbitAngles.theta = 0.0;
+                orbitAngles.phi = 1.05;         // 부드러운 하향 각도
+                updateResetCamButton();
+            };
+        }
+
         document.getElementById('btn-confirm-build').onclick = () => {
             const name = document.getElementById('input-house-name').value.trim() || '새 주택';
             const type = document.getElementById('select-house-type').value;
@@ -6033,128 +6228,99 @@ ${note.thoughts}
                 oceanMesh.position.y = -1.2 + Math.sin(time * 1.5) * 0.08;
             }
 
-            if (cloudsGroup && outdoorGroup.visible) {
-                cloudsGroup.children.forEach(c => {
-                    if (!c.userData) return;
-                    c.position.x += c.userData.driftSpeedX;
-                    c.position.z += c.userData.driftSpeedZ;
-                    c.rotation.y += c.userData.rotSpeed;
-                    if (c.position.x > 88) {
-                        c.position.x = -88;
-                        c.position.z = (Math.random() - 0.5) * 110;
-                    }
+            if (cloudsGroup) {
+                cloudsGroup.children.forEach(cloud => {
+                    cloud.position.x += cloud.userData.driftSpeedX || 0.02;
+                    cloud.position.z += cloud.userData.driftSpeedZ || 0;
+                    cloud.rotation.y += cloud.userData.rotSpeed || 0;
+                    if (cloud.position.x > 85) cloud.position.x = -85;
+                    if (cloud.position.z > 85) cloud.position.z = -85;
+                    if (cloud.position.z < -85) cloud.position.z = 85;
                 });
             }
 
-            if (!isInsideRoom) {
-                const labelContainer = document.getElementById('building-labels-container');
-                if (labelContainer && !labelContainer.classList.contains('hidden')) {
-                    const tempV = new THREE.Vector3();
-                    buildings.forEach(b => {
-                        const badge = document.getElementById(`label-${b.id}`);
-                        if (!badge) return;
-                        tempV.set(b.x, b.type === 'laboratory' ? 7.2 : 5.8, b.z);
-                        tempV.project(camera);
-
-                        if (tempV.z > 1) {
-                            badge.style.display = 'none';
-                        } else {
-                            badge.style.display = 'flex';
-                            badge.style.left = `${(tempV.x * 0.5 + 0.5) * window.innerWidth}px`;
-                            badge.style.top = `${(-tempV.y * 0.5 + 0.5) * window.innerHeight}px`;
-                        }
-                    });
-                }
-            }
-
-            treeObjects.forEach(t => {
-                if (t.userData.shakeTimer > 0) {
-                    t.userData.shakeTimer--;
-                    t.rotation.z = Math.sin(t.userData.shakeTimer * 1.8) * 0.12;
-                    t.rotation.x = Math.cos(t.userData.shakeTimer * 1.8) * 0.12;
+            treeObjects.forEach(tree => {
+                if (tree.userData.shakeTimer > 0) {
+                    tree.userData.shakeTimer--;
+                    const s = (tree.userData.shakeTimer % 2 === 0 ? 1 : -1) * 0.12;
+                    tree.position.x = tree.userData.originalPos.x + s;
                 } else {
-                    t.rotation.z = 0;
-                    t.rotation.x = 0;
+                    tree.position.x = tree.userData.originalPos.x;
                 }
             });
 
-            // 실내 이동 & 카메라
-            if (isInsideRoom && playerAvatarObj) {
-                const walkSpeed = 0.065;
-                let inputX = joyVec.x;
-                let inputY = -joyVec.y; // 조이스틱 위로 밀면 전방(+)
+            // 실내 모드 캐릭터 이동 및 카메라
+            if (isInsideRoom) {
+                if (playerAvatarObj) {
+                    const walkSpeed = 0.065;
+                    let inputX = joyVec.x;
+                    let inputY = -joyVec.y;
 
-                if (moveKeys.w) inputY += 1;
-                if (moveKeys.s) inputY -= 1;
-                if (moveKeys.d) inputX += 1;
-                if (moveKeys.a) inputX -= 1;
+                    if (moveKeys.w) inputY += 1;
+                    if (moveKeys.s) inputY -= 1;
+                    if (moveKeys.d) inputX += 1;
+                    if (moveKeys.a) inputX -= 1;
 
-                const inputMag = Math.hypot(inputX, inputY);
-                if (inputMag > 0.12) {
-                    // 현재 실내 카메라가 바라보는 수평 각도 기준 계산
-                    const camAngle = Math.atan2(
-                        camera.position.x - playerAvatarObj.position.x,
-                        camera.position.z - playerAvatarObj.position.z
-                    ) + Math.PI;
+                    const inputMag = Math.hypot(inputX, inputY);
+                    if (inputMag > 0.12) {
+                        const camAngle = Math.atan2(
+                            camera.position.x - playerAvatarObj.position.x,
+                            camera.position.z - playerAvatarObj.position.z
+                        ) + Math.PI;
 
-                    const moveDirAngle = Math.atan2(inputX, inputY);
-                    const targetYaw = camAngle + moveDirAngle;
+                        const moveDirAngle = Math.atan2(inputX, inputY);
+                        const targetYaw = camAngle + moveDirAngle;
 
-                    // 최단 각도 보간으로 부드럽고 민첩한 회전
-                    const diff = Math.atan2(Math.sin(targetYaw - playerYaw), Math.cos(targetYaw - playerYaw));
-                    playerYaw += diff * 0.28;
-                    playerAvatarObj.rotation.y = playerYaw;
+                        const diff = Math.atan2(Math.sin(targetYaw - playerYaw), Math.cos(targetYaw - playerYaw));
+                        playerYaw += diff * 0.28;
+                        playerAvatarObj.rotation.y = playerYaw;
 
-                    const moveSpeed = walkSpeed * Math.min(1.0, inputMag);
-                    const nx = playerAvatarObj.position.x + Math.sin(targetYaw) * moveSpeed;
-                    const nz = playerAvatarObj.position.z + Math.cos(targetYaw) * moveSpeed;
+                        const moveSpeed = walkSpeed * Math.min(1.0, inputMag);
+                        const nx = playerAvatarObj.position.x + Math.sin(targetYaw) * moveSpeed;
+                        const nz = playerAvatarObj.position.z + Math.cos(targetYaw) * moveSpeed;
 
-                    if (Math.abs(nx) < 8.2 && Math.abs(nz) < 7.2) {
-                        playerAvatarObj.position.x = nx;
-                        playerAvatarObj.position.z = nz;
-                    }
+                        if (Math.abs(nx) < 7.6 && Math.abs(nz) < 6.8) {
+                            playerAvatarObj.position.x = nx;
+                            playerAvatarObj.position.z = nz;
+                        }
 
-                    const swing = Math.sin(time * 6.5) * 0.45;
-                    if (playerAvatarObj.userData.leftArm) {
-                        playerAvatarObj.userData.leftArm.rotation.x = swing;
-                        playerAvatarObj.userData.rightArm.rotation.x = -swing;
-                        playerAvatarObj.userData.leftLeg.rotation.x = -swing;
-                        playerAvatarObj.userData.rightLeg.rotation.x = swing;
-                    }
-                } else {
-                    if (playerAvatarObj.userData.leftArm) {
-                        playerAvatarObj.userData.leftArm.rotation.x = 0;
-                        playerAvatarObj.userData.rightArm.rotation.x = 0;
-                        playerAvatarObj.userData.leftLeg.rotation.x = 0;
-                        playerAvatarObj.userData.rightLeg.rotation.x = 0;
+                        const swing = Math.sin(time * 6.5) * 0.45;
+                        if (playerAvatarObj.userData.leftArm) {
+                            playerAvatarObj.userData.leftArm.rotation.x = swing;
+                            playerAvatarObj.userData.rightArm.rotation.x = -swing;
+                            playerAvatarObj.userData.leftLeg.rotation.x = -swing;
+                            playerAvatarObj.userData.rightLeg.rotation.x = swing;
+                        }
+                    } else {
+                        if (playerAvatarObj.userData.leftArm) {
+                            playerAvatarObj.userData.leftArm.rotation.x = 0;
+                            playerAvatarObj.userData.rightArm.rotation.x = 0;
+                            playerAvatarObj.userData.leftLeg.rotation.x = 0;
+                            playerAvatarObj.userData.rightLeg.rotation.x = 0;
+                        }
                     }
                 }
 
-                // 전체 방 보기: 360도 3D 오빗 회전
                 if (isAllRoomsMode && currentBuilding) {
                     const r = roomOrbitAngles.radius || 30;
-                    const rx = r * Math.sin(roomOrbitAngles.phi) * Math.sin(roomOrbitAngles.theta);
-                    const ry = Math.max(r * Math.cos(roomOrbitAngles.phi), 3.5);
-                    const rz = r * Math.sin(roomOrbitAngles.phi) * Math.cos(roomOrbitAngles.theta);
-
-                    camera.position.x += (rx - camera.position.x) * 0.08;
-                    camera.position.y += (ry - camera.position.y) * 0.08;
-                    camera.position.z += (rz - camera.position.z) * 0.08;
-                    camera.lookAt(0, 1.2, 0);
+                    camera.position.set(
+                        r * Math.sin(roomOrbitAngles.phi) * Math.sin(roomOrbitAngles.theta),
+                        Math.max(4, r * Math.cos(roomOrbitAngles.phi)),
+                        r * Math.sin(roomOrbitAngles.phi) * Math.cos(roomOrbitAngles.theta)
+                    );
+                    camera.lookAt(0, 1.5, 0);
                 } else if (roomCamMode === 'orbit') {
-                    const rx = roomOrbitAngles.radius * Math.sin(roomOrbitAngles.phi) * Math.sin(roomOrbitAngles.theta);
-                    const ry = Math.max(roomOrbitAngles.radius * Math.cos(roomOrbitAngles.phi), 1.8);
-                    const rz = roomOrbitAngles.radius * Math.sin(roomOrbitAngles.phi) * Math.cos(roomOrbitAngles.theta);
-                    camera.position.x += (rx - camera.position.x) * 0.08;
-                    camera.position.y += (ry - camera.position.y) * 0.08;
-                    camera.position.z += (rz - camera.position.z) * 0.08;
-                    camera.lookAt(0, 1.8, 0);
+                    const r = roomOrbitAngles.radius;
+                    camera.position.set(
+                        r * Math.sin(roomOrbitAngles.phi) * Math.sin(roomOrbitAngles.theta),
+                        Math.max(2, r * Math.cos(roomOrbitAngles.phi)),
+                        r * Math.sin(roomOrbitAngles.phi) * Math.cos(roomOrbitAngles.theta)
+                    );
+                    camera.lookAt(0, 1.5, 0);
                 } else if (roomCamMode === 'iso') {
-                    camera.position.x += (0 - camera.position.x) * 0.08;
-                    camera.position.y += (14.2 - camera.position.y) * 0.08;
-                    camera.position.z += (14.0 - camera.position.z) * 0.08;
-                    camera.lookAt(0, 0.8, -0.8);
-                } else {
+                    camera.position.set(16, 20, 20);
+                    camera.lookAt(0, 1.2, 0);
+                } else if (playerAvatarObj) {
                     // 실내 기본 3인칭: 캐릭터를 안정감 있게 따라오며 방 안 전체를 조망
                     const targetCamX = playerAvatarObj.position.x * 0.35;
                     const targetCamY = 7.2;
@@ -6180,6 +6346,12 @@ ${note.thoughts}
 
                     const inputMag = Math.hypot(inputX, inputY);
                     if (inputMag > 0.12) {
+                        // 캐릭터 이동 시 카메라 초점을 즉시 캐릭터에게로 부드럽게 복귀
+                        if (isCamDetachedFromPlayer) {
+                            isCamDetachedFromPlayer = false;
+                            updateResetCamButton();
+                        }
+
                         // 1. 현재 카메라의 수평 시선 각도를 구함
                         const camAngle = Math.atan2(
                             camera.position.x - playerAvatarObj.position.x,
@@ -6221,21 +6393,26 @@ ${note.thoughts}
                         }
                     }
 
-                    // 야외 안정형 3인칭 추적 카메라:
-                    // 캐릭터가 방향을 틀어도 카메라가 멋대로 회전하지 않고, 부드럽게 위치만 추적하여 멀미나 어지러움 없이 안정적인 시야 유지
+                    // 야외 자유 줌인 카메라 추적 시스템:
+                    // 캐릭터가 움직이지 않거나 줌인할 때는 원하는 대상(건물, 풍차, 해변 등)을 초점으로 줌인하고,
+                    // 캐릭터가 이동하면 다시 캐릭터의 위치를 부드럽게 따라옵니다.
                     if (!isIntroAnimating) {
-                        const hDist = outdoorCamDistance * Math.sin(orbitAngles.phi || 0.92);
-                        const vHeight = Math.max(3.0, outdoorCamDistance * Math.cos(orbitAngles.phi || 0.92));
+                        if (!isCamDetachedFromPlayer) {
+                            outdoorFocusPos.lerp(new THREE.Vector3(playerAvatarObj.position.x, playerAvatarObj.position.y + 1.3, playerAvatarObj.position.z), 0.08);
+                        }
 
-                        const targetCamX = playerAvatarObj.position.x + Math.sin(orbitAngles.theta) * hDist;
-                        const targetCamY = playerAvatarObj.position.y + vHeight;
-                        const targetCamZ = playerAvatarObj.position.z + Math.cos(orbitAngles.theta) * hDist;
+                        const hDist = outdoorCamDistance * Math.sin(orbitAngles.phi || 0.92);
+                        const vHeight = Math.max(2.8, outdoorCamDistance * Math.cos(orbitAngles.phi || 0.92));
+
+                        const targetCamX = outdoorFocusPos.x + Math.sin(orbitAngles.theta) * hDist;
+                        const targetCamY = outdoorFocusPos.y + vHeight;
+                        const targetCamZ = outdoorFocusPos.z + Math.cos(orbitAngles.theta) * hDist;
 
                         camera.position.x += (targetCamX - camera.position.x) * 0.08;
                         camera.position.y += (targetCamY - camera.position.y) * 0.08;
                         camera.position.z += (targetCamZ - camera.position.z) * 0.08;
 
-                        camera.lookAt(playerAvatarObj.position.x, playerAvatarObj.position.y + 1.3, playerAvatarObj.position.z);
+                        camera.lookAt(outdoorFocusPos.x, outdoorFocusPos.y, outdoorFocusPos.z);
                     }
 
                     // 카메라와 캐릭터 사이를 가리는 나무 자동 반투명화
