@@ -109,7 +109,13 @@
                 <span>섬 전체</span>
             </button>
 
-            <!-- 7. 새 집 짓기 -->
+            <!-- 7. 마을 고정 / 마을 편집 토글 버튼 -->
+            <button id="btn-toggle-village-edit" class="flex-shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-xl text-xs font-semibold btn-press flex items-center gap-1 border border-white/20 shadow-sm whitespace-nowrap transition-colors">
+                <span id="village-edit-icon">🔒</span>
+                <span id="village-edit-text">마을 고정</span>
+            </button>
+
+            <!-- 8. 새 집 짓기 -->
             <button id="btn-add-building" class="flex-shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-md btn-press flex items-center gap-1 whitespace-nowrap">
                 <span>➕</span>
                 <span>새 집 짓기</span>
@@ -117,10 +123,8 @@
         </div>
     </header>
 
-    <!-- [야외/실내 상시 사용] 스마트 다이내믹 플로팅 조이스틱 (캐릭터 이동 시에만 동적 활성화) -->
-    <div id="joystick-touch-area" class="absolute top-20 bottom-0 left-0 w-1/2 pointer-events-none touch-none z-30 select-none"></div>
-
-    <div id="joystick-zone" class="fixed w-28 h-28 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30 bg-white/10 backdrop-blur-md touch-none z-40 flex items-center justify-center select-none shadow-[0_8px_32px_rgba(0,0,0,0.3)] pointer-events-none opacity-0 scale-90 transition-all duration-150">
+    <!-- [야외/실내 상시 사용] 좌측 하단 고정 조이스틱 (좌측 하단 160x160px 터치 영역 전용) -->
+    <div id="joystick-zone" class="fixed left-6 bottom-6 w-28 h-28 rounded-full border-2 border-white/30 bg-white/10 backdrop-blur-md touch-none z-40 flex items-center justify-center select-none shadow-[0_8px_32px_rgba(0,0,0,0.3)] pointer-events-none opacity-60 transition-all duration-150">
         <!-- 미니멀 내부 가이드 링 -->
         <div class="w-14 h-14 rounded-full border border-white/20"></div>
 
@@ -180,19 +184,25 @@
                 <span id="room-iso-text">방 전체 보기</span>
             </button>
 
-            <!-- 7. 가구 배치 -->
+            <!-- 7. 가구 고정 / 가구 편집 토글 버튼 -->
+            <button id="btn-toggle-furniture-edit" class="flex-shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold btn-press flex items-center gap-1.5 border border-white/20 shadow-sm transition-colors">
+                <span id="furniture-edit-icon">🔒</span>
+                <span id="furniture-edit-text">가구 고정</span>
+            </button>
+
+            <!-- 8. 가구 배치 -->
             <button id="btn-room-catalog" class="flex-shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-md btn-press flex items-center gap-1.5">
                 <span>🛋️</span>
                 <span>가구 배치</span>
             </button>
 
-            <!-- 8. 방 확장 -->
+            <!-- 9. 방 확장 -->
             <button id="btn-add-subroom" class="flex-shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-md btn-press flex items-center gap-1.5">
                 <span>➕</span>
                 <span>방 확장</span>
             </button>
 
-            <!-- 9. 가구 모두 비우기 (일괄 삭제) -->
+            <!-- 10. 가구 모두 비우기 (일괄 삭제) -->
             <button id="btn-clear-all-furniture" class="flex-shrink-0 bg-rose-600/80 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-md btn-press flex items-center gap-1.5 border border-rose-400/30">
                 <span>🧹</span>
                 <span>가구 비우기</span>
@@ -255,13 +265,14 @@
     </div>
 
     <!-- [실내] 가구 배치 대기 안내 배너 -->
-    <div id="furniture-placement-banner" class="absolute top-16 left-1/2 -translate-x-1/2 hidden glass-panel px-4 py-2 rounded-2xl shadow-2xl items-center gap-3 border border-amber-400/50 bg-amber-950/85 z-30 pointer-events-auto">
+    <div id="furniture-placement-banner" class="absolute top-16 left-1/2 -translate-x-1/2 hidden glass-panel px-4 py-2 rounded-2xl shadow-2xl items-center gap-2.5 border border-amber-400/50 bg-amber-950/85 z-30 pointer-events-auto whitespace-nowrap">
         <span class="text-base animate-bounce">📍</span>
         <div class="text-xs">
             <span id="placement-guide-name" class="font-bold text-amber-300">원목 책상</span>
-            <span class="text-slate-300 ml-1">배치할 위치를 탭/클릭하세요!</span>
+            <span class="text-slate-300 ml-1">위치를 맞춘 뒤 [✅ 확정]을 누르세요!</span>
         </div>
-        <button id="btn-cancel-placement" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold border border-white/10 btn-press ml-1">취소</button>
+        <button id="btn-confirm-placement" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold border border-emerald-400/40 btn-press shadow-md">✅ 확정</button>
+        <button id="btn-cancel-placement" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold border border-white/10 btn-press">취소</button>
     </div>
 
     <!-- [야외] 건물 근접 입장 안내 버튼 -->
@@ -290,7 +301,7 @@
                 </button>
                 <!-- 우리가족 알림장 가구일 때만 노출되는 다이어리 열기 버튼 -->
                 <button id="hud-btn-family-diary" onclick="openFamilyDiaryModal()" class="hidden px-2 py-0.5 rounded-md bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold btn-press items-center gap-1 shadow-sm" title="가족 다이어리 열기">
-                    <span>👨‍👩‍👧‍👦</span> 다이어리
+                    <span>👨👩👧👦</span> 다이어리
                 </button>
                 <!-- 십자가 달린 책 가구일 때만 노출되는 교제/심방 일지 열기 버튼 -->
                 <button id="hud-btn-fellowship" onclick="openFellowshipModal()" class="hidden px-2 py-0.5 rounded-md bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold btn-press items-center gap-1 shadow-sm" title="교제 &amp; 심방 일지 열기">
@@ -1335,6 +1346,8 @@
         let isNight = false;
         let isInsideRoom = false;
         let isAllRoomsMode = false;
+        let isVillageEditMode = false; // 야외 마을 편집/잠금 상태 (기본: 고정)
+        let isFurnitureEditMode = false; // 실내 가구 편집/잠금 상태 (기본: 고정)
         let roomCamMode = 'follow'; // 'follow', 'orbit', 'iso'
         let roomOrbitAngles = { theta: 0, phi: 1.15, radius: 18 };
         let isRoomOrbiting = false;
@@ -1380,7 +1393,7 @@
         const joyVec = { x: 0, y: 0 };
 
         const FURNITURE_CATALOG = [
-            { type: 'family_board', name: '우리가족 알림장', icon: '👨‍👩‍👧‍👦', color: '#f59e0b' },
+            { type: 'family_board', name: '우리가족 알림장', icon: '👨👩👧👦', color: '#f59e0b' },
             { type: 'cross_book', name: '십자가 달린 책', icon: '✝️', color: '#1e293b' },
             { type: 'bookshelf', name: '클래식 원목 책장', icon: '📖', color: '#b45309' },
             { type: 'checklist_board', name: '작업 체크리스트 보드', icon: '📋', color: '#0284c7' },
@@ -3847,17 +3860,102 @@ ${note.thoughts}
                 badge.id = `label-${b.id}`;
                 badge.className = 'absolute -translate-x-1/2 -translate-y-1/2 pointer-events-auto flex items-center gap-1.5 glass-panel px-2.5 py-1 rounded-xl shadow-lg border border-white/20 transition-opacity';
                 
-                const demolishBtnHtml = (b.id !== 'lab-center')
+                const editBtnHtml = isVillageEditMode
+                    ? `<button class="text-[11px] hover:scale-125 transition-transform text-amber-300 ml-1" onclick="openRenameModal('${b.id}')" title="이름 변경">✏️</button>`
+                    : '';
+
+                const demolishBtnHtml = (isVillageEditMode && b.id !== 'lab-center')
                     ? `<button class="text-[11px] hover:scale-125 transition-transform text-rose-400 hover:text-rose-300 ml-0.5" onclick="openDemolishModal('${b.id}')" title="건물 철거">🗑️</button>`
                     : '';
 
                 badge.innerHTML = `
-                    <button class="text-xs font-bold text-emerald-300 hover:text-emerald-200" onclick="enterBuilding('${b.id}')">🚪 ${b.name}</button>
-                    <button class="text-[11px] hover:scale-125 transition-transform text-amber-300 ml-1" onclick="openRenameModal('${b.id}')" title="이름 변경">✏️</button>
+                    <button class="text-xs font-bold text-emerald-300 hover:text-emerald-200 whitespace-nowrap" onclick="enterBuilding('${b.id}')">🚪 ${b.name}</button>
+                    ${editBtnHtml}
                     ${demolishBtnHtml}
                 `;
                 container.appendChild(badge);
             });
+        }
+
+        function updateBuildingLabelsPosition() {
+            if (isInsideRoom) return;
+            buildings.forEach(b => {
+                const badge = document.getElementById(`label-${b.id}`);
+                const mesh = buildingMeshes.get(b.id);
+                if (!badge || !mesh) return;
+
+                const labelY = b.type === 'lighthouse' ? 8.2 : (b.type === 'laboratory' ? 7.2 : 6.0);
+                const worldPos = new THREE.Vector3(mesh.position.x, labelY, mesh.position.z);
+                worldPos.project(camera);
+
+                if (worldPos.z > 1) {
+                    badge.style.opacity = '0';
+                    badge.style.pointerEvents = 'none';
+                } else {
+                    const x = (worldPos.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = (-(worldPos.y * 0.5) + 0.5) * window.innerHeight;
+                    badge.style.left = `${x}px`;
+                    badge.style.top = `${y}px`;
+                    badge.style.opacity = '1';
+                    badge.style.pointerEvents = 'auto';
+                }
+            });
+        }
+
+        function toggleVillageEditMode() {
+            isVillageEditMode = !isVillageEditMode;
+            const btn = document.getElementById('btn-toggle-village-edit');
+            const icon = document.getElementById('village-edit-icon');
+            const text = document.getElementById('village-edit-text');
+
+            if (isVillageEditMode) {
+                if (btn) {
+                    btn.classList.remove('bg-slate-900/80', 'text-slate-300', 'border-white/20');
+                    btn.classList.add('bg-amber-600/90', 'text-white', 'border-amber-400/50');
+                }
+                if (icon) icon.innerText = '🔓';
+                if (text) text.innerText = '마을 편집';
+            } else {
+                isDraggingBuilding = false;
+                draggedBuildingObj = null;
+                if (btn) {
+                    btn.classList.add('bg-slate-900/80', 'text-slate-300', 'border-white/20');
+                    btn.classList.remove('bg-amber-600/90', 'text-white', 'border-amber-400/50');
+                }
+                if (icon) icon.innerText = '🔒';
+                if (text) text.innerText = '마을 고정';
+            }
+            updateBuildingLabels();
+        }
+
+        function setFurnitureEditMode(enabled) {
+            isFurnitureEditMode = enabled;
+            const btn = document.getElementById('btn-toggle-furniture-edit');
+            const icon = document.getElementById('furniture-edit-icon');
+            const text = document.getElementById('furniture-edit-text');
+
+            if (isFurnitureEditMode) {
+                if (btn) {
+                    btn.classList.remove('bg-slate-900/80', 'text-slate-300', 'border-white/20');
+                    btn.classList.add('bg-amber-600/90', 'text-white', 'border-amber-400/50');
+                }
+                if (icon) icon.innerText = '🔓';
+                if (text) text.innerText = '가구 편집';
+            } else {
+                isDraggingFurniture = false;
+                draggedFurnitureObj = null;
+                deselectFurniture();
+                if (btn) {
+                    btn.classList.add('bg-slate-900/80', 'text-slate-300', 'border-white/20');
+                    btn.classList.remove('bg-amber-600/90', 'text-white', 'border-amber-400/50');
+                }
+                if (icon) icon.innerText = '🔒';
+                if (text) text.innerText = '가구 고정';
+            }
+        }
+
+        function toggleFurnitureEditMode() {
+            setFurnitureEditMode(!isFurnitureEditMode);
         }
 
         let demolishingBuildingId = null;
@@ -4016,7 +4114,7 @@ ${note.thoughts}
         function rebuildIndoorRoom() {
             for (let i = indoorGroup.children.length - 1; i >= 0; i--) {
                 const child = indoorGroup.children[i];
-                if (child !== playerAvatarObj) {
+                if (child !== playerAvatarObj && child !== ghostPreviewMesh) {
                     indoorGroup.remove(child);
                 }
             }
@@ -4931,7 +5029,7 @@ ${note.thoughts}
                 fctx.font = boardTitle.length > 9 ? 'bold 30px "Inter", sans-serif' : 'bold 36px "Inter", sans-serif';
                 fctx.textAlign = 'center';
                 fctx.textBaseline = 'middle';
-                fctx.fillText(`👨‍👩‍👧‍👦 ${boardTitle}`, 256, 52);
+                fctx.fillText(`👨👩👧👦 ${boardTitle}`, 256, 52);
 
                 // 3. 아기자기한 가족 포스트잇 메모 3개 렌더링
                 // 메모 1 (노랑 - 가족 다짐)
@@ -5016,7 +5114,7 @@ ${note.thoughts}
 
             canvas.addEventListener('pointerdown', e => {
                 // UI 버튼/모달 위 터치 무시
-                if (e.target.closest('#furniture-action-hud') || e.target.closest('#room-top-bar') || e.target.closest('#outdoor-top-bar') || e.target.closest('#btn-reset-camera-focus')) return;
+                if (e.target.closest('#furniture-action-hud') || e.target.closest('#room-top-bar') || e.target.closest('#outdoor-top-bar') || e.target.closest('#btn-reset-camera-focus') || e.target.closest('#furniture-placement-banner')) return;
 
                 // 두 손가락 핀치 줌 직후이거나 진행 중이면 단일 포인터 클릭 무시
                 if (initialPinchDistance !== null || wasPinching || (performance.now() - lastPinchEndTime < 400)) {
@@ -5028,18 +5126,16 @@ ${note.thoughts}
 
                 if (isIntroAnimating) isIntroAnimating = false;
 
-                const isLeftSide = e.clientX < window.innerWidth * 0.5;
-
-                // [모바일 마인크래프트 PE 조작계]
-                // 화면 좌측(50%): 가구 배치가 아닐 때 이동 조이스틱 발동
-                if (isLeftSide && !isPlacingNewFurniture && e.clientY > 65) {
+                // [1. 조이스틱 좌측 하단 모서리 영역(160x160px) 판정]
+                const isJoyCorner = (e.clientX <= 160 && e.clientY >= window.innerHeight - 160);
+                if (isJoyCorner && !isPlacingNewFurniture) {
                     if (typeof startJoystickGlobal === 'function') {
                         startJoystickGlobal(e.clientX, e.clientY, e.pointerId);
                         return;
                     }
                 }
 
-                // 화면 우측(50%): 마인크래프트 스타일 시점 둘러보기 및 오브젝트 탭 판정
+                // 나머지 화면 영역: 마인크래프트 스타일 360도 카메라 시점 회전 및 오브젝트 탭 판정
                 activeCamPointerId = e.pointerId;
                 camPointerStart = { x: e.clientX, y: e.clientY };
                 isCamDragMoved = false;
@@ -5049,37 +5145,24 @@ ${note.thoughts}
                 raycaster.setFromCamera(mouse, camera);
 
                 if (isInsideRoom) {
-                    // 가구 배치 모드
-                    if (isPlacingNewFurniture && pendingFurnitureData && currentBuilding) {
-                        wasInteractingWithObject = true;
+                    // 가구 배치 모드: 바닥을 터치/드래그하면 프리뷰 위치가 이동하고, [✅ 확정] 버튼을 눌러야 최종 배치됨
+                    if (isPlacingNewFurniture && pendingFurnitureData && ghostPreviewMesh) {
                         if (raycaster.ray.intersectPlane(dragPlane, dragIntersection)) {
                             const isWallItem = isWallMountedType(pendingFurnitureData.type);
                             const isTabletop = isTabletopItem(pendingFurnitureData.type);
-                            const finalX = Math.max(-7.4, Math.min(7.4, dragIntersection.x));
-                            const finalZ = isWallItem ? -7.6 : Math.max(-6.4, Math.min(6.4, dragIntersection.z));
-                            const finalY = isWallItem ? 2.8 : (isTabletop ? getSupportingSurfaceHeight(finalX, finalZ, pendingFurnitureData) : 0);
-                            
-                            pendingFurnitureData.x = finalX;
-                            pendingFurnitureData.y = finalY;
-                            pendingFurnitureData.z = finalZ;
+                            const nx = Math.max(-7.4, Math.min(7.4, dragIntersection.x));
+                            const nz = isWallItem ? -7.6 : Math.max(-6.4, Math.min(6.4, dragIntersection.z));
+                            const ny = isWallItem ? 2.8 : (isTabletop ? getSupportingSurfaceHeight(nx, nz, pendingFurnitureData) : 0);
 
-                            const room = currentBuilding.rooms[currentRoomIndex];
-                            room.furnitures.push(pendingFurnitureData);
-
-                            const targetF = pendingFurnitureData;
-                            cancelFurniturePlacement();
-                            rebuildIndoorRoom();
-                            saveVillageDataToStorage(false);
-
-                            setTimeout(() => {
-                                const newMesh = findFurnitureMesh(targetF);
-                                if (newMesh) selectFurniture(targetF, newMesh);
-                            }, 40);
-                            return;
+                            ghostPreviewMesh.position.set(nx, ny, nz);
+                            pendingFurnitureData.x = nx;
+                            pendingFurnitureData.y = ny;
+                            pendingFurnitureData.z = nz;
                         }
+                        return;
                     }
 
-                    // 가구 잡고 드래그 이동 준비
+                    // 실내 오브젝트 터치 판정
                     const intersects = raycaster.intersectObjects(indoorGroup.children, true);
                     if (intersects.length > 0) {
                         let hitObj = intersects[0].object;
@@ -5108,30 +5191,36 @@ ${note.thoughts}
                             doorCandidate = doorCandidate.parent;
                         }
 
-                        // 가구 선택
+                        // 가구 선택 및 상호작용
                         while (hitObj && !hitObj.userData.isFurniture && hitObj.parent !== indoorGroup) {
                             hitObj = hitObj.parent;
                         }
                         if (hitObj && hitObj.userData.isFurniture) {
-                            wasInteractingWithObject = true;
                             const fData = hitObj.userData.furnitureData;
-                            selectFurniture(fData, hitObj);
 
-                            if (fData && fData.type === 'calendar_board') { openWorkLogModal(); return; }
-                            if (fData && fData.type === 'family_board') { openFamilyDiaryModal(); return; }
-                            if (fData && fData.type === 'cross_book') { openFellowshipModal(); return; }
+                            // '가구 고정' 상태에서도 다이어리/작업일지/교제일지 특수 가구 모달 상호작용은 무조건 정상 작동!
+                            if (!isFurnitureEditMode) {
+                                if (fData && fData.type === 'calendar_board') { wasInteractingWithObject = true; openWorkLogModal(); return; }
+                                if (fData && fData.type === 'family_board') { wasInteractingWithObject = true; openFamilyDiaryModal(); return; }
+                                if (fData && fData.type === 'cross_book') { wasInteractingWithObject = true; openFellowshipModal(); return; }
+                                // 일반 가구는 가구 고정 상태일 때 드래그/HUD가 뜨지 않고 시점 회전이 가능하도록 통과
+                            } else {
+                                // '가구 편집' 상태일 때: 가구 선택 HUD 표시 및 이동/회전 허용
+                                wasInteractingWithObject = true;
+                                selectFurniture(fData, hitObj);
 
-                            isDraggingFurniture = true;
-                            draggedFurnitureObj = hitObj;
-                            if (raycaster.ray.intersectPlane(dragPlane, dragIntersection)) {
-                                const parentOffsetX = (hitObj.parent && hitObj.parent.position) ? hitObj.parent.position.x : 0;
-                                furnitureDragOffset.set(
-                                    hitObj.position.x - (dragIntersection.x - parentOffsetX),
-                                    0,
-                                    hitObj.position.z - dragIntersection.z
-                                );
+                                isDraggingFurniture = true;
+                                draggedFurnitureObj = hitObj;
+                                if (raycaster.ray.intersectPlane(dragPlane, dragIntersection)) {
+                                    const parentOffsetX = (hitObj.parent && hitObj.parent.position) ? hitObj.parent.position.x : 0;
+                                    furnitureDragOffset.set(
+                                        hitObj.position.x - (dragIntersection.x - parentOffsetX),
+                                        0,
+                                        hitObj.position.z - dragIntersection.z
+                                    );
+                                }
+                                return;
                             }
-                            return;
                         }
                     }
 
@@ -5154,10 +5243,10 @@ ${note.thoughts}
                         let bObj = hit;
                         while (bObj && !bObj.userData.isBuilding && bObj.parent !== outdoorGroup) bObj = bObj.parent;
                         if (bObj && bObj.userData.isBuilding) {
-                            wasInteractingWithObject = true;
                             const bId = bObj.userData.buildingData.id;
                             const now = performance.now();
                             if (lastClickedBuildingId === bId && (now - lastBuildingClickTime) < 380) {
+                                wasInteractingWithObject = true;
                                 lastClickedBuildingId = null;
                                 lastBuildingClickTime = 0;
                                 enterBuilding(bId);
@@ -5167,11 +5256,13 @@ ${note.thoughts}
                                 lastBuildingClickTime = now;
                             }
 
-                            if (bId !== 'lab-center') {
+                            // '마을 편집' 상태일 때만 건물을 드래그하여 이동 가능 ('마을 고정' 상태에서는 카메라 시점 회전 작동)
+                            if (isVillageEditMode && bId !== 'lab-center') {
+                                wasInteractingWithObject = true;
                                 isDraggingBuilding = true;
                                 draggedBuildingObj = bObj;
+                                return;
                             }
-                            return;
                         }
                     }
 
@@ -5210,7 +5301,7 @@ ${note.thoughts}
                     return;
                 }
 
-                if (isInsideRoom && isPlacingNewFurniture && ghostPreviewMesh) {
+                if (isInsideRoom && isPlacingNewFurniture && ghostPreviewMesh && pendingFurnitureData) {
                     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                     raycaster.setFromCamera(mouse, camera);
@@ -5223,12 +5314,14 @@ ${note.thoughts}
                         ghostPreviewMesh.position.x = nx;
                         ghostPreviewMesh.position.y = ny;
                         ghostPreviewMesh.position.z = nz;
+                        pendingFurnitureData.x = nx;
                         pendingFurnitureData.y = ny;
+                        pendingFurnitureData.z = nz;
                     }
                     return;
                 }
 
-                if (isInsideRoom && isDraggingFurniture && draggedFurnitureObj) {
+                if (isInsideRoom && isFurnitureEditMode && isDraggingFurniture && draggedFurnitureObj) {
                     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                     raycaster.setFromCamera(mouse, camera);
@@ -5261,7 +5354,7 @@ ${note.thoughts}
                     return;
                 }
 
-                if (isDraggingBuilding && draggedBuildingObj) {
+                if (isVillageEditMode && isDraggingBuilding && draggedBuildingObj) {
                     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                     raycaster.setFromCamera(mouse, camera);
@@ -5485,7 +5578,7 @@ ${note.thoughts}
 
             const zone = document.getElementById('joystick-zone');
             const knob = document.getElementById('joystick-knob');
-            let joyCenter = { x: 0, y: 0 };
+            let joyCenter = { x: 80, y: window.innerHeight - 80 };
 
             const cancelJoystick = () => {
                 isJoystickActiveGlobal = false;
@@ -5493,8 +5586,8 @@ ${note.thoughts}
                 joyVec.x = 0;
                 joyVec.y = 0;
                 knob.style.transform = 'translate(0px, 0px)';
-                zone.classList.remove('opacity-100', 'scale-100');
-                zone.classList.add('opacity-0', 'scale-90');
+                zone.classList.remove('opacity-100');
+                zone.classList.add('opacity-60');
             };
             cancelJoystickGlobal = cancelJoystick;
 
@@ -5522,17 +5615,14 @@ ${note.thoughts}
                 isJoystickActiveGlobal = true;
                 activeJoyPointerId = pointerId;
 
-                joyCenter.x = clientX;
-                joyCenter.y = clientY;
+                const rect = zone.getBoundingClientRect();
+                joyCenter.x = rect.left + rect.width / 2;
+                joyCenter.y = rect.top + rect.height / 2;
 
-                zone.style.left = `${joyCenter.x}px`;
-                zone.style.top = `${joyCenter.y}px`;
-                zone.classList.remove('opacity-0', 'scale-90');
-                zone.classList.add('opacity-100', 'scale-100');
+                zone.classList.remove('opacity-60');
+                zone.classList.add('opacity-100');
 
-                knob.style.transform = 'translate(0px, 0px)';
-                joyVec.x = 0;
-                joyVec.y = 0;
+                updateJoyFromCoords(clientX, clientY);
             };
             startJoystickGlobal = startJoystick;
         }
@@ -5624,6 +5714,35 @@ ${note.thoughts}
             if (banner) {
                 banner.classList.add('hidden');
                 banner.classList.remove('flex');
+            }
+        }
+
+        function confirmFurniturePlacement() {
+            if (!isPlacingNewFurniture || !pendingFurnitureData || !currentBuilding) return;
+
+            const isWallItem = isWallMountedType(pendingFurnitureData.type);
+            const isTabletop = isTabletopItem(pendingFurnitureData.type);
+            const finalX = Math.max(-7.4, Math.min(7.4, ghostPreviewMesh ? ghostPreviewMesh.position.x : (pendingFurnitureData.x || 0)));
+            const finalZ = isWallItem ? -7.6 : Math.max(-6.4, Math.min(6.4, ghostPreviewMesh ? ghostPreviewMesh.position.z : (pendingFurnitureData.z || 0)));
+            const finalY = isWallItem ? 2.8 : (isTabletop ? getSupportingSurfaceHeight(finalX, finalZ, pendingFurnitureData) : (ghostPreviewMesh ? ghostPreviewMesh.position.y : (pendingFurnitureData.y || 0)));
+
+            pendingFurnitureData.x = finalX;
+            pendingFurnitureData.y = finalY;
+            pendingFurnitureData.z = finalZ;
+
+            const room = currentBuilding.rooms[currentRoomIndex];
+            room.furnitures.push(pendingFurnitureData);
+
+            const targetF = pendingFurnitureData;
+            cancelFurniturePlacement();
+            rebuildIndoorRoom();
+            saveVillageDataToStorage(false);
+
+            if (isFurnitureEditMode) {
+                setTimeout(() => {
+                    const newMesh = findFurnitureMesh(targetF);
+                    if (newMesh) selectFurniture(targetF, newMesh);
+                }, 40);
             }
         }
 
@@ -5896,6 +6015,8 @@ ${note.thoughts}
                 saveVillageDataToStorage(false);
             };
 
+            const btnConfirmPlacement = document.getElementById('btn-confirm-placement');
+            if (btnConfirmPlacement) btnConfirmPlacement.onclick = confirmFurniturePlacement;
             document.getElementById('btn-cancel-placement').onclick = cancelFurniturePlacement;
 
             const palContainer = document.getElementById('hud-color-palette');
@@ -5989,6 +6110,16 @@ ${note.thoughts}
         document.getElementById('btn-add-building').onclick = () => {
             document.getElementById('modal-build-house').classList.remove('hidden');
         };
+
+        const btnToggleVillageEdit = document.getElementById('btn-toggle-village-edit');
+        if (btnToggleVillageEdit) {
+            btnToggleVillageEdit.onclick = toggleVillageEditMode;
+        }
+
+        const btnToggleFurnitureEdit = document.getElementById('btn-toggle-furniture-edit');
+        if (btnToggleFurnitureEdit) {
+            btnToggleFurnitureEdit.onclick = toggleFurnitureEditMode;
+        }
 
         // 섬 전체 조감도 뷰 토글
         const btnIslandOverview = document.getElementById('btn-island-overview');
@@ -6495,6 +6626,8 @@ ${note.thoughts}
                         }
                     }
                 });
+
+                updateBuildingLabelsPosition();
             }
 
             renderer.render(scene, camera);
