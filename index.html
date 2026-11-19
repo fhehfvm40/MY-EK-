@@ -1316,15 +1316,6 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-1.5 text-xs text-slate-500 flex-wrap">
-                        <span class="text-[11px] font-medium text-slate-400">빠른 입력:</span>
-                        <button type="button" onclick="setFellowshipMeetingName('심방')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700">심방</button>
-                        <button type="button" onclick="setFellowshipMeetingName('소그룹 교제')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700">소그룹</button>
-                        <button type="button" onclick="setFellowshipMeetingName('일대일 교제')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700">일대일</button>
-                        <button type="button" onclick="setFellowshipMeetingName('구역예배')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700">구역예배</button>
-                        <button type="button" onclick="setFellowshipMeetingName('청년부 모임')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700">청년부</button>
-                    </div>
-
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <label class="text-xs font-semibold text-slate-700">내용 <span class="text-red-500">*</span></label>
@@ -3457,9 +3448,7 @@
         function renderFellowshipFilterControls() {
             const tagContainer = document.getElementById('fellowshipTagFilterContainer');
             if (tagContainer) {
-                const baseTags = ['심방', '소그룹 교제', '일대일 교제', '구역예배', '청년부 모임'];
-                const noteTags = fellowshipNotes.map(n => (n.meetingName || '').trim()).filter(Boolean);
-                const allTags = Array.from(new Set([...baseTags, ...noteTags]));
+                const allTags = getFellowshipMeetingOptions();
 
                 const isAllTags = fellowshipCheckedTags.size === 0;
                 let tagHtml = `
@@ -3469,7 +3458,7 @@
                 `;
                 tagHtml += allTags.map(tag => {
                     const checked = fellowshipCheckedTags.has(tag);
-                    const count = fellowshipNotes.filter(n => (n.meetingName || '').trim() === tag).length;
+                    const count = fellowshipNotes.filter(n => (n.meetingName || '').split(',').map(s => s.trim()).includes(tag)).length;
                     return `
                         <label class="inline-flex items-center gap-1 px-2 py-1 rounded-md border cursor-pointer select-none transition-colors ${checked ? 'bg-slate-900 text-white border-slate-900 font-bold' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 font-medium'}">
                             <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleFellowshipTagCheck('${escapeHtml(tag)}')" class="w-3 h-3 accent-amber-400 cursor-pointer">
@@ -3545,8 +3534,8 @@
             if (!listEl || !countEl) return;
 
             const filtered = fellowshipNotes.filter(item => {
-                const nameTrim = (item.meetingName || '').trim();
-                const matchTag = (fellowshipCheckedTags.size === 0) || fellowshipCheckedTags.has(nameTrim);
+                const itemTags = (item.meetingName || '').split(',').map(s => s.trim()).filter(Boolean);
+                const matchTag = (fellowshipCheckedTags.size === 0) || itemTags.some(t => fellowshipCheckedTags.has(t));
                 const itemYm = (item.meetingDate || '').slice(0, 7);
                 const matchMonth = (fellowshipCheckedMonths.size === 0) || fellowshipCheckedMonths.has(itemYm);
                 const matchQuery = !fellowshipSearchQuery || 
@@ -3679,7 +3668,7 @@
                 title.textContent = '새 교제 내용 기록';
                 document.getElementById('fellowshipEditNoteId').value = '';
                 document.getElementById('fellowshipInputDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('fellowshipInputMeetingName').value = '심방';
+                document.getElementById('fellowshipInputMeetingName').value = '';
                 document.getElementById('fellowshipInputContent').value = '';
                 document.getElementById('fellowshipInputThoughts').value = '';
                 fellowshipTempAudioData = null;
@@ -3908,8 +3897,20 @@
             }
         }
 
+        function getFellowshipMeetingOptions() {
+            const noteTags = [];
+            fellowshipNotes.forEach(n => {
+                (n.meetingName || '').split(',').forEach(part => {
+                    const t = part.trim();
+                    if (t) noteTags.push(t);
+                });
+            });
+            return Array.from(new Set(noteTags));
+        }
+
         function setFellowshipMeetingName(name) {
-            document.getElementById('fellowshipInputMeetingName').value = name;
+            const inp = document.getElementById('fellowshipInputMeetingName');
+            if (inp) inp.value = name;
         }
 
         function applyFellowshipContentTemplate() {
