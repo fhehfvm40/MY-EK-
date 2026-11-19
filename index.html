@@ -311,6 +311,14 @@
                 <button id="hud-btn-fire-siren-app" onclick="openFireSirenAppModal(selectedFurniture)" class="hidden px-2 py-0.5 rounded-md bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold btn-press items-center gap-1 shadow-sm" title="소방 싸이렌 연동 어플 열기">
                     <span>🚨</span> <span>소방어플</span>
                 </button>
+                <!-- 데스크탑 컴퓨터 세트 가구일 때만 노출되는 연동 어플 열기 버튼 -->
+                <button id="hud-btn-computer-app" onclick="openComputerAppModal(selectedFurniture)" class="hidden px-2 py-0.5 rounded-md bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold btn-press items-center gap-1 shadow-sm" title="데스크탑 컴퓨터 연동 어플 열기">
+                    <span>💻</span> <span>컴퓨터 앱</span>
+                </button>
+                <!-- 탁상달력 가구일 때만 노출되는 연동 어플 열기 버튼 -->
+                <button id="hud-btn-desk-calendar-app" onclick="openDeskCalendarAppModal(selectedFurniture)" class="hidden px-2 py-0.5 rounded-md bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold btn-press items-center gap-1 shadow-sm" title="탁상달력 연동 어플 열기">
+                    <span>📆</span> <span>달력 앱</span>
+                </button>
                 <button id="hud-btn-fire-siren" onclick="toggleSelectedFireSiren()" class="hidden px-2 py-0.5 rounded-md bg-rose-600 hover:bg-rose-500 text-white font-bold btn-press items-center gap-1 shadow-sm" title="소방 싸이렌 경보 작동/정지">
                     <span>🚨</span> <span id="hud-siren-btn-text">싸이렌 작동</span>
                 </button>
@@ -1449,6 +1457,78 @@
         </div>
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- [데스크탑 컴퓨터 세트 가구 연동: 외부 웹어플 (https://fhehfvm40.github.io/fff/) 모달] -->
+    <!-- ========================================================================= -->
+    <div id="modal-computer-app" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex-col select-auto">
+        <!-- 상단 컨트롤 헤더 -->
+        <header class="bg-slate-900 text-white border-b border-sky-500/30 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 flex-shrink-0 shadow-lg">
+            <div class="flex items-center gap-2 min-w-0">
+                <span class="text-xl">💻</span>
+                <div class="min-w-0">
+                    <h2 id="computer-modal-title" class="text-xs sm:text-sm font-bold text-sky-300 truncate">데스크탑 컴퓨터 연동 어플</h2>
+                    <p class="text-[10px] text-slate-400 truncate">https://fhehfvm40.github.io/fff/</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                <button type="button" onclick="reloadComputerIframe()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1 border border-white/10 btn-press">
+                    <span>🔄</span>
+                    <span class="hidden sm:inline">새로고침</span>
+                </button>
+                <a href="https://fhehfvm40.github.io/fff/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 border border-emerald-400/40 btn-press shadow-sm">
+                    <span>↗️</span>
+                    <span>새 창으로 열기</span>
+                </a>
+                <button type="button" onclick="closeComputerAppModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-200 hover:text-white text-xs font-bold flex items-center gap-1 border border-white/15 btn-press transition-colors">
+                    <span>✕</span>
+                    <span>닫기</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 중앙 웹어플 IFrame 영역 -->
+        <div class="flex-1 w-full h-full relative bg-slate-900 overflow-hidden">
+            <iframe id="computer-app-iframe" src="https://fhehfvm40.github.io/fff/" class="w-full h-full border-0 bg-white" allow="camera; microphone; clipboard-read; clipboard-write; geolocation; fullscreen" title="데스크탑 컴퓨터 연동 웹어플"></iframe>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- [탁상달력 가구 연동: 외부 웹어플 (https://fhehfvm40.github.io/dfffggfgfgfg/) 모달] -->
+    <!-- ========================================================================= -->
+    <div id="modal-desk-calendar-app" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex-col select-auto">
+        <!-- 상단 컨트롤 헤더 -->
+        <header class="bg-slate-900 text-white border-b border-emerald-500/30 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 flex-shrink-0 shadow-lg">
+            <div class="flex items-center gap-2 min-w-0">
+                <span class="text-xl">📆</span>
+                <div class="min-w-0">
+                    <h2 id="desk-calendar-modal-title" class="text-xs sm:text-sm font-bold text-emerald-300 truncate">탁상달력 연동 어플</h2>
+                    <p class="text-[10px] text-slate-400 truncate">https://fhehfvm40.github.io/dfffggfgfgfg/</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                <button type="button" onclick="reloadDeskCalendarIframe()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1 border border-white/10 btn-press">
+                    <span>🔄</span>
+                    <span class="hidden sm:inline">새로고침</span>
+                </button>
+                <a href="https://fhehfvm40.github.io/dfffggfgfgfg/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 border border-emerald-400/40 btn-press shadow-sm">
+                    <span>↗️</span>
+                    <span>새 창으로 열기</span>
+                </a>
+                <button type="button" onclick="closeDeskCalendarAppModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-200 hover:text-white text-xs font-bold flex items-center gap-1 border border-white/15 btn-press transition-colors">
+                    <span>✕</span>
+                    <span>닫기</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 중앙 웹어플 IFrame 영역 -->
+        <div class="flex-1 w-full h-full relative bg-slate-900 overflow-hidden">
+            <iframe id="desk-calendar-app-iframe" src="https://fhehfvm40.github.io/dfffggfgfgfg/" class="w-full h-full border-0 bg-white" allow="camera; microphone; clipboard-read; clipboard-write; geolocation; fullscreen" title="탁상달력 연동 웹어플"></iframe>
+        </div>
+    </div>
+
     <!-- 자바스크립트 엔진 -->
     <script>
         /* ======================== 전역 상태 ======================== */
@@ -1521,6 +1601,7 @@
             { type: 'sofa', name: '린넨 2인 소파', icon: '🛋️', color: '#4b5563' },
             { type: 'chair', name: '원목 등받이 의자', icon: '🪑', color: '#78350f' },
             { type: 'computer', name: '데스크탑 컴퓨터 세트', icon: '💻', color: '#0284c7' },
+            { type: 'desk_calendar', name: '탁상달력', icon: '📆', color: '#059669' },
             { type: 'desk', name: '오크 원목 책상', icon: '🖥️', color: '#78350f' },
             { type: 'dining_table', name: '4인 원목 식탁 세트', icon: '🍽️', color: '#92400e' },
             { type: 'tv_stand', name: '와이드 TV 거실장', icon: '📺', color: '#1e293b' },
@@ -1829,6 +1910,72 @@
             if (modal) {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
+            }
+        };
+
+        window.openComputerAppModal = function(fData = null) {
+            const modal = document.getElementById('modal-computer-app');
+            if (!modal) return;
+
+            const titleEl = document.getElementById('computer-modal-title');
+            if (titleEl) {
+                titleEl.innerText = (fData && fData.customName) ? `${fData.customName} 연동 어플` : '데스크탑 컴퓨터 연동 어플';
+            }
+
+            const iframe = document.getElementById('computer-app-iframe');
+            if (iframe && (!iframe.getAttribute('src') || iframe.getAttribute('src') === 'about:blank')) {
+                iframe.setAttribute('src', 'https://fhehfvm40.github.io/fff/');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeComputerAppModal = function() {
+            const modal = document.getElementById('modal-computer-app');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        };
+
+        window.reloadComputerIframe = function() {
+            const iframe = document.getElementById('computer-app-iframe');
+            if (iframe) {
+                iframe.src = 'https://fhehfvm40.github.io/fff/?t=' + Date.now();
+            }
+        };
+
+        window.openDeskCalendarAppModal = function(fData = null) {
+            const modal = document.getElementById('modal-desk-calendar-app');
+            if (!modal) return;
+
+            const titleEl = document.getElementById('desk-calendar-modal-title');
+            if (titleEl) {
+                titleEl.innerText = (fData && fData.customName) ? `${fData.customName} 연동 어플` : '탁상달력 연동 어플';
+            }
+
+            const iframe = document.getElementById('desk-calendar-app-iframe');
+            if (iframe && (!iframe.getAttribute('src') || iframe.getAttribute('src') === 'about:blank')) {
+                iframe.setAttribute('src', 'https://fhehfvm40.github.io/dfffggfgfgfg/');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeDeskCalendarAppModal = function() {
+            const modal = document.getElementById('modal-desk-calendar-app');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        };
+
+        window.reloadDeskCalendarIframe = function() {
+            const iframe = document.getElementById('desk-calendar-app-iframe');
+            if (iframe) {
+                iframe.src = 'https://fhehfvm40.github.io/dfffggfgfgfg/?t=' + Date.now();
             }
         };
 
@@ -5952,6 +6099,97 @@ ${note.thoughts}
                 const chkSheet = new THREE.Mesh(new THREE.PlaneGeometry(1.36, 1.76), new THREE.MeshStandardMaterial({ map: chkTex, roughness: 0.6 }));
                 chkSheet.position.set(0, -0.02, 0.045);
                 group.add(chkSheet);
+            } else if (f.type === 'desk_calendar') {
+                // 3D A자형 삼각 거치대 탁상달력 (Twin-Ring Standing Desk Calendar)
+                const standColor = 0x1e293b;
+                const standMat = new THREE.MeshStandardMaterial({ color: standColor, roughness: 0.65, metalness: 0.15 });
+                const ringMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, roughness: 0.2 });
+
+                // 하단 받침 삼각대 베이스
+                const basePlate = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.025, 0.36), standMat);
+                basePlate.position.set(0, 0.012, 0);
+                group.add(basePlate);
+
+                // 뒤쪽 받침판 (약간 뒤로 기울어짐)
+                const backBoard = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.56, 0.025), standMat);
+                backBoard.position.set(0, 0.27, -0.07);
+                backBoard.rotation.x = 0.26;
+                group.add(backBoard);
+
+                // 앞쪽 달력 본체 보드 (시인성 좋은 각도로 기울어짐)
+                const frontBoard = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.56, 0.025), standMat);
+                frontBoard.position.set(0, 0.27, 0.07);
+                frontBoard.rotation.x = -0.26;
+                group.add(frontBoard);
+
+                // 상단 트윈 스프링 링 6개
+                for (let r = -2; r <= 3; r++) {
+                    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.008, 8, 16), ringMat);
+                    ring.rotation.y = Math.PI / 2;
+                    ring.position.set((r - 0.5) * 0.10, 0.555, 0.0);
+                    group.add(ring);
+                }
+
+                // 달력 앞면 캔버스 텍스처 (현재 연월 + 7열 미니 달력 그리드)
+                const nowD = new Date();
+                const dYear = nowD.getFullYear();
+                const dMonth = nowD.getMonth() + 1;
+                const dToday = nowD.getDate();
+
+                const dcCanvas = document.createElement('canvas');
+                dcCanvas.width = 512;
+                dcCanvas.height = 448;
+                const dctx = dcCanvas.getContext('2d');
+
+                dctx.fillStyle = '#ffffff';
+                dctx.fillRect(0, 0, 512, 448);
+
+                dctx.fillStyle = f.color || '#059669';
+                dctx.fillRect(0, 0, 512, 108);
+
+                dctx.fillStyle = '#ffffff';
+                dctx.font = 'bold 42px "Inter", sans-serif';
+                dctx.textAlign = 'center';
+                dctx.textBaseline = 'middle';
+                dctx.fillText(`${dYear}. ${String(dMonth).padStart(2, '0')}`, 256, 54);
+
+                const daysLabel = ['일', '월', '화', '수', '목', '금', '토'];
+                dctx.font = 'bold 22px "Inter", sans-serif';
+                daysLabel.forEach((dl, idx) => {
+                    dctx.fillStyle = idx === 0 ? '#dc2626' : (idx === 6 ? '#2563eb' : '#475569');
+                    dctx.fillText(dl, 48 + idx * 69, 138);
+                });
+
+                const firstDayIdx = new Date(dYear, dMonth - 1, 1).getDay();
+                const lastDayNum = new Date(dYear, dMonth, 0).getDate();
+                dctx.font = 'bold 22px "Inter", sans-serif';
+                for (let d = 1; d <= lastDayNum; d++) {
+                    const cellIdx = firstDayIdx + d - 1;
+                    const col = cellIdx % 7;
+                    const row = Math.floor(cellIdx / 7);
+                    const cx = 48 + col * 69;
+                    const cy = 182 + row * 48;
+
+                    if (d === dToday) {
+                        dctx.fillStyle = f.color || '#059669';
+                        dctx.beginPath();
+                        dctx.arc(cx, cy, 19, 0, Math.PI * 2);
+                        dctx.fill();
+                        dctx.fillStyle = '#ffffff';
+                    } else {
+                        dctx.fillStyle = col === 0 ? '#dc2626' : (col === 6 ? '#2563eb' : '#1e293b');
+                    }
+                    dctx.fillText(String(d), cx, cy);
+                }
+
+                const dcTex = new THREE.CanvasTexture(dcCanvas);
+                const dcSheet = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.60, 0.50),
+                    new THREE.MeshStandardMaterial({ map: dcTex, roughness: 0.55 })
+                );
+                dcSheet.position.set(0, 0.27, 0.086);
+                dcSheet.rotation.x = -0.26;
+                group.add(dcSheet);
             } else if (f.type === 'calendar_board') {
                 const boardBack = new THREE.Mesh(new THREE.BoxGeometry(1.44, 1.84, 0.08), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 }));
                 group.add(boardBack);
@@ -6172,9 +6410,11 @@ ${note.thoughts}
                             // '가구 고정' 상태에서도 다이어리/작업일지/교제일지/소방싸이렌 특수 가구 상호작용은 무조건 정상 작동!
                             if (!isFurnitureEditMode) {
                                 if (fData && fData.type === 'calendar_board') { wasInteractingWithObject = true; openWorkLogModal(); return; }
+                                if (fData && fData.type === 'desk_calendar') { wasInteractingWithObject = true; openDeskCalendarAppModal(fData); return; }
                                 if (fData && fData.type === 'family_board') { wasInteractingWithObject = true; openFamilyDiaryModal(); return; }
                                 if (fData && fData.type === 'cross_book') { wasInteractingWithObject = true; openFellowshipModal(); return; }
                                 if (fData && fData.type === 'fire_siren') { wasInteractingWithObject = true; openFireSirenAppModal(fData); return; }
+                                if (fData && fData.type === 'computer') { wasInteractingWithObject = true; openComputerAppModal(fData); return; }
                                 // 일반 가구는 가구 고정 상태일 때 드래그/HUD가 뜨지 않고 시점 회전이 가능하도록 통과
                             } else {
                                 // '가구 편집' 상태일 때: 가구 선택 HUD 표시 및 이동/회전 허용
@@ -6673,6 +6913,26 @@ ${note.thoughts}
                     sirenAppBtn.classList.remove('flex');
                 }
             }
+            const compAppBtn = document.getElementById('hud-btn-computer-app');
+            if (compAppBtn) {
+                if (fData && fData.type === 'computer') {
+                    compAppBtn.classList.remove('hidden');
+                    compAppBtn.classList.add('flex');
+                } else {
+                    compAppBtn.classList.add('hidden');
+                    compAppBtn.classList.remove('flex');
+                }
+            }
+            const deskCalAppBtn = document.getElementById('hud-btn-desk-calendar-app');
+            if (deskCalAppBtn) {
+                if (fData && fData.type === 'desk_calendar') {
+                    deskCalAppBtn.classList.remove('hidden');
+                    deskCalAppBtn.classList.add('flex');
+                } else {
+                    deskCalAppBtn.classList.add('hidden');
+                    deskCalAppBtn.classList.remove('flex');
+                }
+            }
             if (sirenBtn) {
                 if (fData && fData.type === 'fire_siren') {
                     sirenBtn.classList.remove('hidden');
@@ -6749,7 +7009,7 @@ ${note.thoughts}
         }
 
         function isTabletopItem(type) {
-            return type === 'cross_book' || type === 'single_book' || type === 'book_set' || type === 'computer';
+            return type === 'cross_book' || type === 'single_book' || type === 'book_set' || type === 'computer' || type === 'desk_calendar';
         }
 
         // 책상, 식탁, TV장, 침대 등 가구 상판의 높이를 자동 감지하는 지능형 스냅 헬퍼
